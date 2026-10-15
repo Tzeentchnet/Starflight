@@ -47,7 +47,7 @@ covered by deterministic discovery inputs.
 - The deterministic ship-control regression is committed in the project at
   `bb02082610e20a2d13451376bb9de78c0a7cf532`.
 - The framework remains clean at
-  `a35c88fedacd3dabeb23cd827fdbded899d9d182` on
+  `c8d0f3a83bc0fde70d549777ad865f75698a68c4` on
   `upstream/save-state-hardening`.
 
 ### Important implementation state
@@ -728,9 +728,15 @@ packaging.
   `generated_input_paths` configure probe selects `/usr/bin/cc` and encounters
   the known macOS 27 `arm64e.x1` system-linker defect.
 - `git diff --check` passes.
-- Fresh-clone qualification remains blocked until the documentation and SRAM
-  harness correction are committed so a clean checkout can reproduce the exact
-  qualified source.
+- Qualification commit
+  `5fb15d362b33cfb3b0f392c941d2f7c5ed5d5c29` records the documentation and
+  SRAM harness correction needed by a clean checkout.
+- The first recursive-clone attempt exposed relative m68k and z80 core URLs
+  that resolved against nonexistent private sibling repositories. Both pinned
+  commits are available from their public `mstan` upstream repositories, so
+  framework commit `c8d0f3a83bc0fde70d549777ad865f75698a68c4`
+  records explicit public URLs. Final remote-clone qualification requires that
+  framework commit and the updated project submodule pointer to be published.
 
 ### Steps
 
