@@ -636,22 +636,50 @@ communications experiment.
   chain ending at `$006E06`. Seeding only A7, `$FF9460`, the final return word,
   or the observed tail of that chain still reaches computed target `$000000`.
   Copying the nearby crew records does not change that result, so the remaining
-  dependency is the exact non-local unwind context rather than an assigned
-  Navigator.
+  dependency initially appeared to be the exact non-local unwind context rather
+  than an assigned Navigator.
+- Frame-level RAM capture and the dispatch-miss return site corrected that
+  diagnosis. The `$000000` target came from the dynamic JSR at `$002668`,
+  which reads the ship-command callback from `$FFB8E2`; it was not a return
+  popped from the non-local unwind chain.
+- The Starport dispatcher writes callback `$00015F7E` at `$006DEE`. Both the
+  working corridor state and the legacy orbit state retain that value, while
+  the minimized constructor left it zero because staged resume enters the
+  launch setup and ship loop after that dispatcher prefix.
+- Adding only `$FFB8E2 = $00015F7E` to the symbolic constructor removes the
+  dispatch miss. No seeded `$FF9460` value, stack tail, crew record, or
+  dispatcher UI constants are required.
+- The deterministic C, Down, A, A sequence now transitions from ship mode back
+  to the Starport corridor. `starflight_return_starport_native` and
+  `starflight_return_starport_interpreter` cover that semantic transition
+  without a save-state, screenshot, or raw-memory payload.
+- Focused validation passes:
+  - `starflight_resume_policy`;
+  - `starflight_navigation_native` in `31.30` seconds;
+  - `starflight_navigation_interpreter` in `31.06` seconds;
+  - `starflight_return_starport_native` in `45.07` seconds;
+  - `starflight_return_starport_interpreter` in `45.06` seconds.
+- Fresh return-path evidence reports zero dispatch misses, interior-label
+  misses, unsafe-floor exits, and Tier-3 floor entries across 2701 frames.
+- Regeneration imports all 41 annotations, emits all 69/69 configured entries
+  with zero code-gate rejections, and reports zero unsupported dynamic JSR or
+  JMP diagnostics.
+- A sixth fresh headless Ghidra import reproduces and saves all 41 tracked
+  annotations without using the ignored local project.
 
 ### Current next experiment
 
-Reconstruct the smallest corridor-produced non-local unwind context needed for
-the C command path, then replay the verified C, Down, A, A landing sequence in
-native and forced-interpreter execution without retaining legacy crew records
-or a local save-state dependency.
+Select landing as the next bounded post-orbit path. Identify the navigation
+location and command selection that reaches a planetary surface, then reduce it
+to semantic native and forced-interpreter regressions without a save-state,
+crew-record, screenshot, or raw-memory dependency.
 
 ### Steps
 
 1. Define the next bounded path after orbit:
    - **Complete:** basic ship control;
    - **Complete:** navigation;
-   - land or return to Starport;
+   - **Complete for return to Starport:** land or return to Starport;
    - save and reload.
 2. **Complete for basic control and navigation:** Traverse the path natively with evidence enabled.
 3. Promote validated Tier-3 targets in small batches.

@@ -21,6 +21,12 @@ changes from `$08` to `$10` while ship mode and the fuel word remain unchanged.
 It covers the same path in native and forced-interpreter execution without
 adding outfitting state or local artifacts.
 
+`starflight_return_starport.input` adds the ship-command callback installed by
+the Starport dispatcher, opens the command menu with C, and selects the
+Navigator return path with Down, A, A. It verifies the transition from ship
+mode back to the Starport corridor in native and forced-interpreter execution
+without a crew-record, save-state, screenshot, or raw-memory dependency.
+
 `starflight_sram_write.input` and `starflight_sram_read.input` are paired by the
 `starflight_sram_roundtrip` CTest. The first process writes byte and word
 sentinels at both ends of the 16 KiB SRAM window and exits through normal
