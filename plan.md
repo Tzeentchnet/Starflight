@@ -74,10 +74,10 @@ covered by deterministic discovery inputs.
 - The generic framework changes are prepared and pushed to the private mirror
   on `upstream/save-state-hardening`; submission to the public upstream
   repository remains pending.
-- Three dynamic-register JMP sites remain uncharacterized:
-  `$023140`, `$02152C`, and `$005434`. `$039962` is statically characterized
-  and its 13 fixed targets are emitted, although the finder still reports the
-  site because it does not associate the prior record scan with `JMP (A0)`.
+- All four dynamic-register JMP sites are statically characterized and their
+  reachable targets are emitted. The finder still reports the four syntactic
+  sites because it does not associate their preceding dataflow with
+  `JMP (A0)`.
 - Local save states and Ghidra projects are intentionally ignored and cannot be
   handoff dependencies.
 
@@ -361,11 +361,11 @@ mirror. Active investigation has moved to Workstream 4.
 - Add cartridge-neutral scripting and regression coverage for deterministic
   resume construction.
 
-### Current next experiment
+### Current status
 
-Begin Workstream 4 by characterizing the first unresolved dynamic-register JMP
-site at `$039962`, recording its register source and reachable target set
-without promoting speculative dispatch entries.
+The framework track is complete and remains ready for public upstream
+submission. The active reverse-engineering experiment is tracked in Workstream
+4 below.
 
 ### Acceptance criteria
 
@@ -394,7 +394,7 @@ without promoting speculative dispatch entries.
    - `$FF9460` saved non-local return stack;
    - `$FF8332/$FF8333` controller state and edges.
 4. Trace the transition through `$01B2F8` into the first stable ship loop.
-5. **Partial:** Resolve or characterize the four dynamic-register JMP sites.
+5. **Complete:** Resolve or characterize the four dynamic-register JMP sites.
 6. Audit `late_extra` entries:
    - remove obsolete entries;
    - distinguish functions from interior labels;
@@ -414,17 +414,51 @@ without promoting speculative dispatch entries.
 - All 13 targets disassemble as valid handler entries and are now explicit
   table-derived `late_extra` seeds. Regeneration emits all 115/115 configured
   entries with zero code-gate rejections.
-- The finder still reports four syntactically unresolved sites because its
-  manual jump-table support only associates recognized indexed-PC dispatch
-  patterns, not this record-scan dataflow.
 - `starflight_sram_game_save` passes after promotion in `58.82` seconds with
   zero semantic lifecycle regressions.
+- `$023140` is `JMP (A0)` at the end of `$02311A`.
+- `$02311A` reads the selector at `$FF9AAC`, scales it by four, and uses the
+  15-entry pointer table at `$023144` to choose a six-byte `(key, handler)`
+  record list. The selector is sourced from byte 3 of the 230 fixed world
+  records at `$01A8E0`; those records contain only selector values 1 through
+  13.
+- Selectors 2 through 13 point directly to the sentinel at `$023180`.
+  Selector 1 points to two records for keys `$0046` and `$0047`, and both
+  records contain the same handler `$023190`.
+- `$023190` disassembles as a valid function entry and is now an explicit
+  table-derived `late_extra` seed.
+- Regeneration emits all 116/116 configured entries with zero code-gate
+  rejections, and `starflight_sram_game_save` passes after promotion in
+  `58.90` seconds.
+- The finder still reports all four syntactic sites because its manual
+  jump-table support only associates recognized indexed-PC dispatch patterns,
+  not these record-scan dataflows.
+- `$02152C` is `JMP (A0)` at the end of `$021504`.
+- `$021504` reads the same selector at `$FF9AAC`, scales it by four, and loads
+  A0 directly from the 15-entry long-pointer table at `$021530`. The fixed
+  world records constrain the live selector to values 1 through 13.
+- The bounded reachable handler set is `$02156C`, `$02156E`, `$0219EE`,
+  `$0219F0`, and `$02206A`. Every target is already an independently
+  discovered function entry, so this site requires no additional
+  `late_extra` seed.
+- `$005434` is `JMP (A0)` at the end of `$005422`.
+- `$005422` sign-extends the mode byte at `$FF8780`, scales it by four, and
+  loads A0 from the long-pointer table at `$0055F8`.
+- `$FF8780` is written only as zero or from the fixed selector lists at
+  `$005988`, `$00598A`, and `$005992`. Their bounded output set is 0 through
+  6, selecting `$005614`, `$005624`, `$005680`, `$00561A`, `$00568C`,
+  `$005CE2`, or `$005DFC`.
+- All seven handlers are already independently discovered function entries,
+  so this site requires no additional `late_extra` seed.
+- All four dynamic-register JMP sites are now characterized. The unresolved
+  finder log remains a syntactic limitation rather than an unknown reachable
+  target set.
 
 ### Current next experiment
 
-Characterize `$023140` using the same bounded-dataflow standard: identify its
-source register, prove any fixed target set from ROM or tracked state, and do
-not add speculative function seeds.
+Audit the `late_extra` entries against current static discovery and runtime
+evidence, remove only entries proven obsolete or redundant, and update
+annotation provenance counts without weakening accepted-path coverage.
 
 ### Acceptance criteria
 
