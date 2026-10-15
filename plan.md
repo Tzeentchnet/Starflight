@@ -393,7 +393,8 @@ submission. The active reverse-engineering experiment is tracked in Workstream
    - `$FF82EC`, `$FF95B8`, `$FFB5E0` exit state;
    - `$FF9460` saved non-local return stack;
    - `$FF8332/$FF8333` controller state and edges.
-4. Trace the transition through `$01B2F8` into the first stable ship loop.
+4. **Complete:** Trace the ship transition, characterize `$01B2F8`, and
+   identify the first stable ship loop.
 5. **Complete:** Resolve or characterize the four dynamic-register JMP sites.
 6. **Complete:** Audit `late_extra` entries:
    - remove obsolete entries;
@@ -485,11 +486,36 @@ submission. The active reverse-engineering experiment is tracked in Workstream
   all 28 annotations and saved successfully. The WRAM set covers game mode,
   three Starport exit-state fields, the non-local return stack, and controller
   state/edge bytes.
+- After adding the three ship-loop symbols below, a third fresh import reported
+  all 31 annotations and saved successfully.
+
+### Ship-loop characterization record
+
+- Static control flow shows two distinct ship-mode entries:
+  - the normal mode-2 dispatcher path at `$006E1E` calls `$01B2F8`, which
+    preserves `$FF8AA6/$FF8AA8` around the shared initializer;
+  - the accepted Starport launch continuation at `$006E06` calls `$01B336`,
+    which clears `$FFA5E8` before entering the same initialization sequence.
+- Both return paths tail-call `$00B3AE`. Its back-edge at `$00B552` returns to
+  `$00B3AE`, making it the first stable main frame loop after ship
+  initialization.
+- Forced-interpreter executed-PC evidence from the deterministic launch
+  contains `$006E06`, `$01B336`, `$01B340`, `$00B3AE`, and `$00B552`.
+  `$01B2F8` is absent, correcting the earlier assumption that the accepted
+  launch transition executed that entry.
+- The evidence run completed 1810 frames with zero dispatch misses,
+  interior-label misses, unsafe-floor exits, or hybrid interpreter calls.
+- `$00B3AE`, `$01B2F8`, and `$01B336` now have neutral symbols reflecting
+  their validated roles.
+- Regeneration preserves the 1015 discovered / 1141 final function counts,
+  and both native and forced-interpreter launch regressions pass with the new
+  annotations.
 
 ### Current next experiment
 
-Trace the transition through `$01B2F8` into the first stable ship loop and add
-only evidence-backed symbols.
+Begin Workstream 5 by selecting one bounded post-orbit path—basic ship control,
+navigation/communications, or return to Starport—and define its semantic
+native/interpreter checkpoints before expanding coverage.
 
 ### Acceptance criteria
 
