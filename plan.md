@@ -5,7 +5,7 @@
 Turn the current Apple Silicon proof of concept into a reproducible milestone that
 another agent can build from a clean checkout and validate through:
 
-`boot -> crew creation/load -> assignment/outfitting -> ship naming -> starport exit -> ORBIT ESTABLISHED`
+`boot -> crew creation/load -> assignment/outfitting -> ship naming -> starport exit -> ORBIT ESTABLISHED -> basic control/navigation -> return to Starport`
 
 The ROM remains user-supplied. Tier-3 interpreter fallback remains acceptable, but
 fallback and dynamic control flow on the accepted path must remain observable and
@@ -22,8 +22,9 @@ covered by deterministic discovery inputs.
   - CRC32: `D550C928`
 - Native arm64 build works with Homebrew LLVM/lld.
 - Boot/title framebuffer smoke test passes.
-- A fresh recursive clone configures, builds, and passes the boot smoke test after
-  the verified user-supplied ROM is added.
+- A fresh remote recursive clone configures and builds after only the verified
+  user-supplied ROM is added, then passes all 12 Starflight tests and all 16
+  framework tests.
 - SRAM geometry is `$200000-$203FFF`, always visible beyond the 1 MiB ROM.
 - Framework SRAM mapping test passes.
 - Native and forced-interpreter launch regressions start from reset, construct the
@@ -39,13 +40,14 @@ covered by deterministic discovery inputs.
 - Launch evidence reports zero dispatch misses, unsafe floor exits, and
   interior-label misses.
 - Starport control-flow labels and the `$016BAE` discovery boundary are tracked.
-- A fresh Ghidra import reproduces all 40 tracked annotations: 24 code labels
-  and 16 WRAM labels.
+- A fresh Ghidra import reproduces all 41 tracked annotations.
 - The project and framework are published privately:
   - `https://github.com/Tzeentchnet/Starflight`
   - `https://github.com/Tzeentchnet/Starflight-segagenesisrecomp`
 - The deterministic ship-control regression is committed in the project at
   `bb02082610e20a2d13451376bb9de78c0a7cf532`.
+- The completed clean-clone qualification is recorded in project commit
+  `348d3ddf40ad3627ea6632950547ff2986ffb4be`.
 - The framework remains clean at
   `c8d0f3a83bc0fde70d549777ad865f75698a68c4` on
   `upstream/save-state-hardening`.
@@ -753,8 +755,8 @@ packaging.
 ### Steps
 
 1. **Complete:** Verify a clean Release arm64 build from a fresh checkout.
-2. **Complete for the current build:** Confirm executable architecture and
-   dynamic dependencies.
+2. **Complete in the fresh clone:** Confirm executable architecture and dynamic
+   dependencies.
 3. **Complete in the current worktree and fresh remote clone:** Run:
    - full framework tests;
    - Starflight boot regression;
@@ -769,15 +771,17 @@ packaging.
    - accepted gameplay scope;
    - fallback status;
    - known limitations.
-5. **Complete for the qualification start:** Record build provenance.
+5. **Complete:** Record build provenance.
 6. Treat a macOS `.app` bundle as a separate optional task.
 
 ### Acceptance criteria
 
-- Another agent can reproduce the milestone without session-local files.
-- Required tests pass from clean worktrees.
-- Documentation matches measured behavior.
-- No ROM, save state, extracted asset, or Ghidra database is distributed.
+- **Satisfied:** Another agent can reproduce the milestone without
+  session-local files.
+- **Satisfied:** Required tests pass from clean worktrees.
+- **Satisfied:** Documentation matches measured behavior.
+- **Satisfied:** No ROM, save state, extracted asset, or Ghidra database is
+  distributed.
 
 ## Agent handoff requirements
 
@@ -799,9 +803,9 @@ Agents must:
 - keep framework and Starflight commits separable;
 - stop and report rather than guess at hardware behavior.
 
-## Next milestone definition
+## Qualified milestone — Complete
 
-The next milestone is complete when a fresh recursive clone, supplied only with the
+The milestone is complete. A fresh recursive clone, supplied only with the
 verified ROM, can:
 
 1. configure and build a native arm64 executable;
