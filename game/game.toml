@@ -1,0 +1,33 @@
+# Starflight (USA, Europe), Sega Genesis, 1991.
+# SHA-256: 31b9d25fcde71c9707a408d58ca229a3b87c1e4fd1300cc407f2ac1d13f15250
+# CRC32: D550C928
+# Product: GM T-50216 -00
+# Reset SSP/PC: $00FFFFF8 / $00000200
+# H-int/V-int: $0000033A / $00000326
+
+[game]
+output_prefix = "starflight"
+jump_table_autodiscovery = true
+discovery_files = [
+  "starflight_boot_floor.toml",
+  "starflight_gameplay_floor.toml",
+]
+annotations = "annotations.csv"
+
+[ram_layout]
+game_mode = 0xFFC2A9
+vint_runcount = 0x000000
+vint_routine = 0x000000
+plc_pending = 0x000000
+initial_ssp = 0xFFFFF8
+vbla_stack = 0xFFFFF8
+intr_stack = 0xFFFFF8
+player_object = 0x000000
+level_modes = []
+
+[functions]
+extra = [
+  0x000200,
+  0x000326,
+  0x00033A,
+]

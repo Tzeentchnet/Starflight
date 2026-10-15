@@ -1,0 +1,24 @@
+{
+  "version": 6,
+  "configurePresets": [
+    {
+      "name": "macos-arm64-release",
+      "displayName": "macOS arm64 Release",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/macos-arm64",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchains/macos-arm64-lld.cmake"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "macos-arm64-release",
+      "configurePreset": "macos-arm64-release",
+      "targets": [
+        "StarflightRecomp"
+      ]
+    }
+  ]
+}

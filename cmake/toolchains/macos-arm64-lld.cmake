@@ -1,0 +1,20 @@
+set(CMAKE_SYSTEM_NAME Darwin)
+set(CMAKE_SYSTEM_PROCESSOR arm64)
+set(CMAKE_OSX_ARCHITECTURES arm64 CACHE STRING "")
+
+find_program(
+    STARFLIGHT_CLANG
+    NAMES clang
+    HINTS /opt/homebrew/opt/llvm/bin
+    NO_DEFAULT_PATH
+    REQUIRED)
+find_program(
+    STARFLIGHT_CLANGXX
+    NAMES clang++
+    HINTS /opt/homebrew/opt/llvm/bin
+    NO_DEFAULT_PATH
+    REQUIRED)
+
+set(CMAKE_C_COMPILER "${STARFLIGHT_CLANG}" CACHE FILEPATH "")
+set(CMAKE_CXX_COMPILER "${STARFLIGHT_CLANGXX}" CACHE FILEPATH "")
+set(CMAKE_EXE_LINKER_FLAGS_INIT "-fuse-ld=lld")

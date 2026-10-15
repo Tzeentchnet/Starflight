@@ -1,0 +1,15 @@
+/build/
+/build-*/
+/game/*.gen
+/*.gen
+/*.bin
+/*.smd
+/*.srm
+native_save_*.bin*
+/*.png
+/dispatch_misses*.toml
+/floor_coverage*.toml
+/floor_unsafe*.toml
+/interior_label_misses*.toml
+/ghidra/projects/
+/.DS_Store
