@@ -33,6 +33,12 @@ descends to the surface. It verifies the transition from ship mode to
 planetary mode in native and forced-interpreter execution without a save-state,
 SRAM, screenshot, or raw-memory payload.
 
+`starflight_surface_exploration.input` extends the landing constructor with one
+symbolic active-crew count. It verifies a viable planetary surface state, holds
+Up for 60 frames, and checks that one fuel unit is consumed while planetary
+mode and the active-crew count remain unchanged. Native and forced-interpreter
+variants use the same state-free recipe.
+
 `starflight_sram_write.input` and `starflight_sram_read.input` are paired by the
 `starflight_sram_roundtrip` CTest. The first process writes byte and word
 sentinels at both ends of the 16 KiB SRAM window and exits through normal

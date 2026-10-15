@@ -39,6 +39,11 @@ late_extra = [
   0x00CAA6,
   0x014B68,
   0x014D9C,
+  # Planetary surface entries observed after the accepted landing checkpoint.
+  0x03BB42,
+  0x03C162,
+  0x03C19C,
+  0x03C81E,
   # Fixed handler from the selector/list dispatch ending at $023140.
   0x023190,
   # Fixed targets from the 13-entry region-action table at $039964.

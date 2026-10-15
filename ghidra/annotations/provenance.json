@@ -4,7 +4,7 @@
     "rom_sha256": "31b9d25fcde71c9707a408d58ca229a3b87c1e4fd1300cc407f2ac1d13f15250",
     "product": "GM T-50216 -00",
     "code_labels": 24,
-    "wram_labels": 16,
+    "wram_labels": 18,
     "discovery_floor": {
       "gameplay_entries": 56,
       "runtime_or_boundary_entries": 27,
@@ -23,7 +23,8 @@
       "Forced-interpreter executed-PC evidence corrected the ship transition trace: the accepted launch calls $01B336 and enters the stable $00B3AE frame loop; $01B2F8 is the separate state-preserving mode-2 entry.",
       "Static ship-control analysis added five neutral WRAM labels: the three-byte navigation location tuple initialized by $009016, the fuel word initialized to 200 by $00AB9E, and the nearby-object count rebuilt by $00BE10.",
       "Static navigation analysis identified $FFB84C as the 16-bit navigation object identifier set to $07CB by the Starport path, and $FFB855-$FFB85B as a seven-byte ship-system condition array initialized to 100 by $00AB8A.",
-      "Native and forced-interpreter thrust probes identified $FF938E as the projected nearby-object scale: sustained Up changes it from $08 to $10 with the symbolic fixture while preserving ship mode and fuel."
+      "Native and forced-interpreter thrust probes identified $FF938E as the projected nearby-object scale: sustained Up changes it from $08 to $10 with the symbolic fixture while preserving ship mode and fuel.",
+      "Surface exploration reduction identified $FF97D3 as the active crew count: zero enters the crew-killed path after landing, while one preserves planetary mode and permits sustained Up to consume one fuel unit in matching native and forced-interpreter runs."
     ]
   }
 }

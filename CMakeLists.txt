@@ -214,4 +214,26 @@ if(BUILD_TESTING)
             RESOURCE_LOCK starflight_runtime
             TIMEOUT 90)
     endforeach()
+
+    foreach(mode IN ITEMS native interpreter)
+        add_test(
+            NAME starflight_surface_exploration_${mode}
+            COMMAND StarflightRecomp
+                --no-launcher
+                --turbo
+                --fresh-evidence
+                --max-frames 3000
+                --input-script "${CMAKE_CURRENT_SOURCE_DIR}/tests/inputs/starflight_surface_exploration.input"
+                "${STARFLIGHT_GAME_DIR}/starflight.gen")
+        if(mode STREQUAL "interpreter")
+            set(force_interp 1)
+        else()
+            set(force_interp 0)
+        endif()
+        set_tests_properties(starflight_surface_exploration_${mode} PROPERTIES
+            ENVIRONMENT "SDL_VIDEODRIVER=dummy;SDL_AUDIODRIVER=dummy;GENESIS_FORCE_INTERP=${force_interp}"
+            PASS_REGULAR_EXPRESSION "Starflight resume loop returned at \\$016BAE with saved A7 \\$FFF000; continuing via setup \\$01B336 and dispatcher \\$00B3AE"
+            RESOURCE_LOCK starflight_runtime
+            TIMEOUT 90)
+    endforeach()
 endif()

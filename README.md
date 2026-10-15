@@ -7,8 +7,8 @@ Genesis release of Starflight, built with
 The first milestone targets an Apple Silicon executable that boots and supports
 crew and ship persistence, starport launch, basic ship control and navigation,
 and a deterministic return to Starport.
-An additional deterministic regression now extends that constructor through
-the landing interface to a planetary surface.
+Additional deterministic regressions extend that constructor through the
+landing interface to a planetary surface and sustained surface travel.
 Static 68000 translations run against the framework's clean-room Genesis
 runtime; uncovered dynamic targets currently use its Tier-3 interpreter floor.
 The validated path now completes the starport exit sequence and reaches the
@@ -78,14 +78,17 @@ station exit resumes at its launch loop and continues into the ship playfield.
 
 CTest runs the resume-policy test, boot smoke test, SRAM round-trip and genuine
 Operations save/reload tests, plus native and forced-interpreter launch,
-ship-control, navigation, return-to-Starport, and planetary-landing
+ship-control, navigation, return-to-Starport, planetary-landing, and
+surface-exploration
 regressions. The gameplay tests start from reset, construct their station-exit
 and ship state with symbolic WRAM values, and do not depend on local save-state
 files. The navigation path verifies sustained forward thrust while preserving
 ship mode and fuel. The return path uses the in-game crew command sequence and
 verifies the transition from ship mode to the Starport corridor. The landing
 path selects a symbolic planet record, traverses the landing interface, and
-verifies the transition to planetary mode.
+verifies the transition to planetary mode. The surface path adds one symbolic
+active-crew count and verifies that sustained travel consumes fuel while
+preserving planetary mode.
 
 The Release build preset builds the game executable only. Build the standalone
 policy test before running the complete Starflight suite:
@@ -134,7 +137,8 @@ interrupt vectors as functions. It refuses to overwrite an existing project.
 This is not yet a full-game decompilation. The accepted first-milestone scope
 ends after a deterministic return to Starport; a qualified post-milestone
 extension reaches a planetary surface, while surface exploration and broader
-game progression remain exploratory. The first milestone allows observable
+game progression beyond the qualified sustained-travel checkpoint remain
+exploratory. The first milestone allows observable
 Tier-3 interpreter fallback outside validated paths and does not include an app
 bundle, Intel support, widescreen, netplay, or a rebuildable assembly source.
 
