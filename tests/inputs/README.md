@@ -15,6 +15,12 @@ forced-interpreter execution. The recipe was reduced from a legacy local-state
 comparison; the test itself has no save-state, SRAM, screenshot, or raw-memory
 payload dependency.
 
+`starflight_navigation.input` reuses that symbolic constructor, holds Up for 60
+frames, and verifies that the projected nearby-object scale at `$FF938E`
+changes from `$08` to `$10` while ship mode and the fuel word remain unchanged.
+It covers the same path in native and forced-interpreter execution without
+adding outfitting state or local artifacts.
+
 `starflight_sram_write.input` and `starflight_sram_read.input` are paired by the
 `starflight_sram_roundtrip` CTest. The first process writes byte and word
 sentinels at both ends of the 16 KiB SRAM window and exits through normal

@@ -73,9 +73,11 @@ Native save-state restoration is mode-aware for the validated starport path.
 Corridor states resume at the per-frame corridor loop, while an in-progress
 station exit resumes at its launch loop and continues into the ship playfield.
 
-CTest runs the boot smoke test plus native and forced-interpreter launch
-regressions. The launch tests start from reset and construct their station-exit
-state with symbolic WRAM values; they do not depend on local save-state files.
+CTest runs the boot smoke test plus native and forced-interpreter launch,
+ship-control, and navigation regressions. The gameplay tests start from reset,
+construct their station-exit and ship state with symbolic WRAM values, and do
+not depend on local save-state files. The navigation path verifies sustained
+forward thrust while preserving ship mode and fuel.
 
 ## Reverse-engineering artifacts
 
