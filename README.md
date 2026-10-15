@@ -83,6 +83,28 @@ navigation path verifies sustained forward thrust while preserving ship mode
 and fuel. The return path uses the in-game crew command sequence and verifies
 the transition from ship mode to the Starport corridor.
 
+The Release build preset builds the game executable only. Build the standalone
+policy test before running the complete Starflight suite:
+
+```sh
+cmake --build build/macos-arm64 --target starflight_resume_policy_test
+ctest --test-dir build/macos-arm64 --output-on-failure
+```
+
+Configure and run the ROM-independent framework suite with the same compiler
+and linker environment:
+
+```sh
+cmake -S segagenesisrecomp/tests -B build/framework-tests -G Ninja \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_TOOLCHAIN_FILE="$PWD/cmake/toolchains/macos-arm64-lld.cmake"
+cmake --build build/framework-tests
+env CC=/opt/homebrew/opt/llvm/bin/clang \
+  CXX=/opt/homebrew/opt/llvm/bin/clang++ \
+  LDFLAGS=-fuse-ld=lld \
+  ctest --test-dir build/framework-tests --output-on-failure
+```
+
 ## Reverse-engineering artifacts
 
 Game-specific configuration and adapters live in `game/`. Reproducible Ghidra

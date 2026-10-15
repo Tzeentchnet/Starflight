@@ -107,7 +107,7 @@ covered by deterministic discovery inputs.
 4. **Complete for the accepted milestone:** expand gameplay qualification
    beyond orbit through basic ship control, navigation, and return to Starport.
    Planetary landing remains a separate exploratory extension.
-5. **In progress:** perform clean-clone milestone qualification and packaging.
+5. **Complete:** perform clean-clone milestone qualification and packaging.
 
 Agents must not edit the same files concurrently. Assign one owner to framework
 runtime files and one owner to Starflight-owned files.
@@ -735,15 +735,27 @@ packaging.
   that resolved against nonexistent private sibling repositories. Both pinned
   commits are available from their public `mstan` upstream repositories, so
   framework commit `c8d0f3a83bc0fde70d549777ad865f75698a68c4`
-  records explicit public URLs. Final remote-clone qualification requires that
-  framework commit and the updated project submodule pointer to be published.
+  records explicit public URLs and the project advances its submodule pointer.
+- Framework commit `c8d0f3a83bc0fde70d549777ad865f75698a68c4`
+  and project commit `addb274ccf757a39197b3b910b8f8c586c6961d0`
+  were published to their tracked branches.
+- A new recursive clone from the private project remote fetched the framework
+  and all five nested submodules at their pinned revisions. Only the verified
+  ROM was copied into the clone; no save, build, evidence, screenshot, or
+  Ghidra artifact was supplied.
+- The fresh clone configured and built a Mach-O 64-bit arm64 Release executable
+  with Homebrew Clang 23.1.3 and lld.
+- Fresh-clone validation passes all 16 framework tests and all 12 Starflight
+  tests. The Release preset builds only `StarflightRecomp`, so the standalone
+  `starflight_resume_policy_test` target was built explicitly before its
+  successful CTest run; the exact commands are now documented in `README.md`.
 
 ### Steps
 
-1. Verify a clean Release arm64 build from a fresh checkout.
+1. **Complete:** Verify a clean Release arm64 build from a fresh checkout.
 2. **Complete for the current build:** Confirm executable architecture and
    dynamic dependencies.
-3. **Complete in the current worktree:** Run:
+3. **Complete in the current worktree and fresh remote clone:** Run:
    - full framework tests;
    - Starflight boot regression;
    - launch regression;
