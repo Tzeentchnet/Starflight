@@ -31,13 +31,16 @@ covered by deterministic discovery inputs.
 - Native and forced-interpreter ship-control regressions extend that constructor
   with symbolic navigation, fuel, and ship-condition state and verify that
   Right input deterministically removes the sole nearby object after orbit.
+- Native and forced-interpreter navigation regressions reuse the same symbolic
+  constructor and verify that sustained Up changes the projected nearby-object
+  scale from `$08` to `$10` without changing ship mode or fuel.
 - The launch recipe requires only three WRAM values and no local save-state,
   CPU-register, machine, VDP, screenshot, or ROM-derived payload.
 - Launch evidence reports zero dispatch misses, unsafe floor exits, and
   interior-label misses.
 - Starport control-flow labels and the `$016BAE` discovery boundary are tracked.
-- A fresh Ghidra import reproduces all 36 tracked annotations: 24 code labels
-  and 12 WRAM labels.
+- A fresh Ghidra import reproduces all 40 tracked annotations: 24 code labels
+  and 16 WRAM labels.
 - The project and framework are published privately:
   - `https://github.com/Tzeentchnet/Starflight`
   - `https://github.com/Tzeentchnet/Starflight-segagenesisrecomp`
@@ -70,9 +73,9 @@ covered by deterministic discovery inputs.
 - The semantic persistence fixture uses symbolic `TEST`/`CREW` fields rather
   than a fully traversed gameplay-created roster and outfitted ship.
 - The ship-control fixture was minimized from a local legacy-state comparison.
-  The regression has no local-state dependency. Its navigation tuple and fuel
-  word are characterized, but `$FFB84D` and `$FFB855-$FFB856` still need
-  deeper gameplay naming before they should be reused for broader navigation.
+  The regression has no local-state dependency. Its navigation tuple, fuel,
+  navigation-object identifier, and first two ship-system condition bytes are
+  characterized and reused by the bounded navigation regression.
 - Scripted `EXIT` may bypass normal SRAM cleanup; persistence regressions
   intentionally use `--max-frames` cleanup instead.
 - Save-resume tests cover saved A7, native/interpreter resume-PC selection,
@@ -575,35 +578,48 @@ communications experiment.
 - The ship-control regression now writes the full fuel word and checks the full
   nearby-object count rather than relying on their low bytes.
 - Five neutral WRAM symbols were added for those proven roles. `$FFB84D` and
-  `$FFB855-$FFB856` remain deliberately unnamed because their precise roles
-  are not yet proven.
-- Bounded native probes found that Up, A, and B are inert with the minimized
-  fixture. Start deterministically opens the Operations save/resume overlay
-  with zero Tier-3, unsafe-floor, or interior-label evidence, but that is not a
-  navigation or communications action and was not promoted to a regression.
-- Regeneration imports all 36 annotations, preserves 1015 discovered functions,
+  `$FFB855-$FFB856` were then resolved: `$FFB84C` is the 16-bit navigation
+  object identifier set to `$07CB` by the Starport path, while
+  `$FFB855-$FFB85B` is a seven-byte ship-system condition array initialized to
+  100 by `$00AB8A`.
+- Sustained Up did not require any additional outfitting state. Holding it for
+  60 frames changes the projected nearby-object scale at `$FF938E` from `$08`
+  to `$10` while ship mode and the fuel word remain unchanged.
+- `starflight_navigation_native` and
+  `starflight_navigation_interpreter` cover that semantic checkpoint without a
+  save-state, SRAM, screenshot, or raw-memory payload.
+- Focused validation passes:
+  - `starflight_navigation_native` in `31.29` seconds;
+  - `starflight_navigation_interpreter` in `31.07` seconds.
+- Navigation implementation commit:
+  `957c4830e813611c319d0a8b7eedb45a5d6b68cf`.
+- Fresh forced-interpreter navigation evidence reports zero dispatch misses,
+  interior-label misses, unsafe floor exits, and Tier-3 floor entries.
+- Short A and B probes remain outside the accepted navigation path. Start
+  deterministically opens the Operations save/resume overlay, but that is not
+  a navigation or communications action.
+- Regeneration imports all 40 annotations, preserves 1015 discovered functions,
   emits all 69/69 configured entries with zero code-gate rejections, and reports
   zero unsupported code-generation diagnostics.
-- A fourth fresh headless Ghidra import reproduces and saves all 36 tracked
+- A fifth fresh headless Ghidra import reproduces and saves all 40 tracked
   annotations without using the ignored local project.
 
 ### Current next experiment
 
-Characterize `$FFB84D` and `$FFB855-$FFB856`, then minimally extend the
-outfitting/state fixture until Up, A, or B produces a deterministic semantic
-transition suitable for one bounded navigation or communications regression.
+Use the accepted navigation fixture to characterize the smallest deterministic
+land/return-to-Starport transition without adding a local save-state dependency.
 
 ### Steps
 
 1. Define the next bounded path after orbit:
    - **Complete:** basic ship control;
-   - navigation or communications;
+   - **Complete:** navigation;
    - land or return to Starport;
    - save and reload.
-2. **Complete for basic control:** Traverse the path natively with evidence enabled.
+2. **Complete for basic control and navigation:** Traverse the path natively with evidence enabled.
 3. Promote validated Tier-3 targets in small batches.
-4. **Complete for basic control:** Compare native and interpreter state at checkpoints.
-5. **Complete for basic control:** Add semantic regressions for each accepted mode.
+4. **Complete for basic control and navigation:** Compare native and interpreter state at checkpoints.
+5. **Complete for basic control and navigation:** Add semantic regressions for each accepted mode.
 6. Track remaining fallback coverage explicitly.
 7. Investigate VBlank observability only if a measured timing defect depends on it.
 
