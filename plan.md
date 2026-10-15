@@ -683,11 +683,11 @@ crew-record, screenshot, or raw-memory dependency.
    - **Complete:** basic ship control;
    - **Complete:** navigation;
    - **Complete for return to Starport:** land or return to Starport;
-   - save and reload.
-2. **Complete for basic control and navigation:** Traverse the path natively with evidence enabled.
+   - **Complete:** save and reload.
+2. **Complete for basic control, navigation, and return to Starport:** Traverse the path natively with evidence enabled.
 3. Promote validated Tier-3 targets in small batches.
-4. **Complete for basic control and navigation:** Compare native and interpreter state at checkpoints.
-5. **Complete for basic control and navigation:** Add semantic regressions for each accepted mode.
+4. **Complete for basic control, navigation, and return to Starport:** Compare native and interpreter state at checkpoints.
+5. **Complete for basic control, navigation, and return to Starport:** Add semantic regressions for each accepted mode.
 6. Track remaining fallback coverage explicitly.
 7. Investigate VBlank observability only if a measured timing defect depends on it.
 
