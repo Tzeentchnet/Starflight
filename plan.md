@@ -28,6 +28,9 @@ covered by deterministic discovery inputs.
 - Framework SRAM mapping test passes.
 - Native and forced-interpreter launch regressions start from reset, construct the
   station-exit state symbolically, continue through `$006E06`, and reach ship mode.
+- Native and forced-interpreter ship-control regressions extend that constructor
+  with seven symbolic bytes and verify a deterministic Right-input steering
+  transition after orbit.
 - The launch recipe requires only three WRAM values and no local save-state,
   CPU-register, machine, VDP, screenshot, or ROM-derived payload.
 - Launch evidence reports zero dispatch misses, unsafe floor exits, and
@@ -63,6 +66,9 @@ covered by deterministic discovery inputs.
   files, but milestone launch validation no longer does.
 - The semantic persistence fixture uses symbolic `TEST`/`CREW` fields rather
   than a fully traversed gameplay-created roster and outfitted ship.
+- The seven-byte ship-control fixture was minimized from a local legacy-state
+  comparison. The regression has no local-state dependency, but the fields need
+  deeper gameplay naming before they should be reused for broader navigation.
 - Scripted `EXIT` may bypass normal SRAM cleanup; persistence regressions
   intentionally use `--max-frames` cleanup instead.
 - Save-resume tests cover saved A7, native/interpreter resume-PC selection,
@@ -529,17 +535,48 @@ native/interpreter checkpoints before expanding coverage.
 **Owner:** gameplay coverage agent
 **Dependencies:** Workstreams 1 and 2
 
+### Progress record
+
+- Basic ship control was selected as the first bounded post-orbit path.
+- The original three-field launch constructor reaches ship mode but not a
+  controllable/outfitted state: Right is byte-for-byte identical to idle, and C
+  enters a crash/game-over path.
+- An ignored legacy save state was used only as a discovery oracle. Copying
+  differing canonical game-state bytes proved the control path, then page- and
+  byte-level reduction removed all but seven symbolic bytes:
+  `$FF943D-$FF943F`, `$FF9573`, `$FFB84D`, and `$FFB855-$FFB856`.
+- With those bytes plus the existing launch constructor, holding Right for 60
+  frames deterministically changes `$FFA563` from 1 to 0 while remaining in
+  ship mode.
+- `starflight_ship_control_native` and
+  `starflight_ship_control_interpreter` cover the same constructor and semantic
+  checkpoint without a save-state, SRAM, screenshot, or raw-memory payload.
+- Focused validation passes:
+  - `starflight_ship_control_native` in `30.89` seconds;
+  - `starflight_ship_control_interpreter` in `30.56` seconds.
+- Fresh forced-interpreter evidence reports zero dispatch misses,
+  interior-label misses, unsafe floor exits, and Tier-3 floor entries.
+- An exploratory second C action reached game over and observed interior-label
+  miss `$03C66E`; it is not on the accepted basic-control path and was not
+  promoted as a function seed.
+
+### Current next experiment
+
+Statically characterize the seven constructor bytes and `$FFA563`, add neutral
+WRAM symbols where their roles are proven, then use the same controllable fixture
+to define one bounded navigation or communications action.
+
 ### Steps
 
 1. Define the next bounded path after orbit:
-   - basic ship control;
+   - **Complete:** basic ship control;
    - navigation or communications;
    - land or return to Starport;
    - save and reload.
-2. Traverse the path natively with evidence enabled.
+2. **Complete for basic control:** Traverse the path natively with evidence enabled.
 3. Promote validated Tier-3 targets in small batches.
-4. Compare native and interpreter state at checkpoints.
-5. Add semantic regressions for each accepted mode.
+4. **Complete for basic control:** Compare native and interpreter state at checkpoints.
+5. **Complete for basic control:** Add semantic regressions for each accepted mode.
 6. Track remaining fallback coverage explicitly.
 7. Investigate VBlank observability only if a measured timing defect depends on it.
 

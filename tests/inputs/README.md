@@ -7,6 +7,13 @@ WRAM writes, seeds a non-default saved A7, restarts at the generated `$016BAE`
 boundary, and verifies the transition to ship mode in native and
 forced-interpreter execution.
 
+`starflight_ship_control.input` extends the launch constructor with seven
+symbolic world/ship-condition bytes. It reaches a controllable orbit state,
+holds Right for 60 frames, and verifies the deterministic `$FFA563` steering
+state transition in native and forced-interpreter execution. The seven-byte
+recipe was reduced from a legacy local-state comparison; the test itself has no
+save-state, SRAM, screenshot, or raw-memory payload dependency.
+
 `starflight_sram_write.input` and `starflight_sram_read.input` are paired by the
 `starflight_sram_roundtrip` CTest. The first process writes byte and word
 sentinels at both ends of the 16 KiB SRAM window and exits through normal
