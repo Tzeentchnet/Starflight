@@ -13,6 +13,10 @@ covered by deterministic discovery inputs.
 
 ## Current baseline (2026-10-15)
 
+The accepted milestone is complete. Active follow-on work is a bounded
+planetary-landing extension that must preserve the same no-local-state,
+native/interpreter, and observable-fallback requirements.
+
 ### Verified
 
 - Supported ROM:
@@ -35,6 +39,9 @@ covered by deterministic discovery inputs.
 - Native and forced-interpreter navigation regressions reuse the same symbolic
   constructor and verify that sustained Up changes the projected nearby-object
   scale from `$08` to `$10` without changing ship mode or fuel.
+- Native and forced-interpreter planetary-landing regressions extend the
+  command-capable constructor with one symbolic nearby-object record field and
+  verify the transition from ship mode to planetary mode.
 - The launch recipe requires only three WRAM values and no local save-state,
   CPU-register, machine, VDP, screenshot, or ROM-derived payload.
 - Launch evidence reports zero dispatch misses, unsafe floor exits, and
@@ -46,6 +53,8 @@ covered by deterministic discovery inputs.
   - `https://github.com/Tzeentchnet/Starflight-segagenesisrecomp`
 - The deterministic ship-control regression is committed in the project at
   `bb02082610e20a2d13451376bb9de78c0a7cf532`.
+- The deterministic planetary-landing extension is committed in the project
+  at `1fae0fe5652c34ab450b2da2f41cd389f00235dd`.
 - The completed clean-clone qualification is recorded in project commit
   `348d3ddf40ad3627ea6632950547ff2986ffb4be`.
 - The framework remains clean at
@@ -106,9 +115,9 @@ covered by deterministic discovery inputs.
    and deepen Ghidra annotations and discovery.
 3. **Complete for the private mirror:** extract and prepare generic framework
    changes for upstream review. Public upstream submission remains pending.
-4. **Complete for the accepted milestone:** expand gameplay qualification
-   beyond orbit through basic ship control, navigation, and return to Starport.
-   Planetary landing remains a separate exploratory extension.
+4. **Complete for the accepted milestone and landing extension:** expand
+   gameplay qualification beyond orbit through basic ship control, navigation,
+   return to Starport, and a separate deterministic planetary landing.
 5. **Complete:** perform clean-clone milestone qualification and packaging.
 
 Agents must not edit the same files concurrently. Assign one owner to framework
@@ -225,10 +234,10 @@ investigation has moved to Workstream 4.
 5. **Complete:** Run native and `GENESIS_FORCE_INTERP=1` variants from the same
    generated state.
 6. **Complete:** Compare selected WRAM and control-flow outcomes.
-7. **Partial:** Add framework tests for:
+7. **Complete:** Add framework tests for:
    - **Complete:** preserving saved A7;
    - **Complete:** honoring forced-interpreter resume PC;
-   - **Remaining:** preserving cartridge geometry across state load.
+   - **Complete:** preserving cartridge geometry across state load.
 8. **Complete:** Review observed Starport resume modes and fail explicitly for
    unsupported mode values.
 
@@ -240,8 +249,8 @@ investigation has moved to Workstream 4.
 - **Satisfied:** No interior-label miss occurs at `$016BAE`.
 - **Satisfied:** Continuation changes from `$006E06` or loss of saved A7
   `$FFF000` fail both launch variants.
-- **Pending final qualification:** rerun the launch regressions from a fresh
-  recursive clone after the current project and framework changes are committed.
+- **Satisfied:** Launch regressions pass from the qualified fresh recursive
+  clone at the recorded project and framework revisions.
 
 ## Workstream 2: Verify battery-backed SRAM
 
@@ -559,6 +568,29 @@ communications experiment.
 
 ### Progress record
 
+- Post-milestone planetary landing work reproduced the real interaction as C,
+  Down, A, A to enter the landing interface, followed by sustained Down and A
+  to land; the earlier record omitted those final interface controls.
+- The Starport constructor derives navigation object `$07CB` from the selected
+  nearby-object record. Setting that record's one-based orbital slot at
+  `$FFA6A8` to `$0015` immediately before choosing Land instead derives
+  `$07BC`, enters the landing interface, and reaches game mode 4 on the
+  planetary surface.
+- The first successful native probe reached the surface at frame 2699 with
+  zero dispatch misses or interior-label misses.
+- Seven observed landing-interface Tier-3 entries were promoted into the
+  gameplay floor. Regeneration emits all 76/76 configured entries with zero
+  code-gate rejections.
+- `starflight_planetary_landing_native` and
+  `starflight_planetary_landing_interpreter` pass in `45.34` and `45.03`
+  seconds. Fresh forced-interpreter evidence reports zero dispatch misses,
+  interior-label misses, and Tier-3 floor entries.
+- Planetary-landing implementation commit:
+  `1fae0fe5652c34ab450b2da2f41cd389f00235dd`
+  (`Add deterministic planetary landing regression`).
+- Post-change `starflight_return_starport_native` and
+  `starflight_return_starport_interpreter` continue to pass in `45.06` seconds
+  each.
 - Basic ship control was selected as the first bounded post-orbit path.
 - The original three-field launch constructor reaches ship mode but not a
   controllable/outfitted state: Right is byte-for-byte identical to idle, and C
@@ -675,23 +707,23 @@ communications experiment.
 
 ### Current next experiment
 
-**Complete for the accepted milestone:** deterministic native and
-forced-interpreter coverage now extends from orbit through basic control,
-navigation, and return to Starport. Planetary landing is deferred as a separate
-exploratory extension. Active work has moved to Workstream 6 qualification and
-packaging.
+**Complete as a post-milestone extension:** the symbolic orbit constructor now
+reaches the landing interface and planetary mode in matching native and
+forced-interpreter regressions without local save states. Surface exploration
+is the next smallest gameplay extension; the already-qualified
+return-to-Starport path remains the accepted first-milestone endpoint.
 
 ### Steps
 
 1. Define the next bounded path after orbit:
    - **Complete:** basic ship control;
    - **Complete:** navigation;
-   - **Complete for return to Starport:** land or return to Starport;
+   - **Complete:** land or return to Starport;
    - **Complete:** save and reload.
-2. **Complete for basic control, navigation, and return to Starport:** Traverse the path natively with evidence enabled.
+2. **Complete for basic control, navigation, landing, and return to Starport:** Traverse the path natively with evidence enabled.
 3. Promote validated Tier-3 targets in small batches.
-4. **Complete for basic control, navigation, and return to Starport:** Compare native and interpreter state at checkpoints.
-5. **Complete for basic control, navigation, and return to Starport:** Add semantic regressions for each accepted mode.
+4. **Complete for basic control, navigation, landing, and return to Starport:** Compare native and interpreter state at checkpoints.
+5. **Complete for basic control, navigation, landing, and return to Starport:** Add semantic regressions for each accepted mode.
 6. Track remaining fallback coverage explicitly.
 7. Investigate VBlank observability only if a measured timing defect depends on it.
 
