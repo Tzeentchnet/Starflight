@@ -104,9 +104,10 @@ covered by deterministic discovery inputs.
    and deepen Ghidra annotations and discovery.
 3. **Complete for the private mirror:** extract and prepare generic framework
    changes for upstream review. Public upstream submission remains pending.
-4. **In progress:** expand gameplay qualification beyond orbit. Basic ship
-   control is covered; navigation or communications is next.
-5. **Pending:** perform clean-clone milestone qualification and packaging.
+4. **Complete for the accepted milestone:** expand gameplay qualification
+   beyond orbit through basic ship control, navigation, and return to Starport.
+   Planetary landing remains a separate exploratory extension.
+5. **In progress:** perform clean-clone milestone qualification and packaging.
 
 Agents must not edit the same files concurrently. Assign one owner to framework
 runtime files and one owner to Starflight-owned files.
@@ -672,10 +673,11 @@ communications experiment.
 
 ### Current next experiment
 
-Select landing as the next bounded post-orbit path. Identify the navigation
-location and command selection that reaches a planetary surface, then reduce it
-to semantic native and forced-interpreter regressions without a save-state,
-crew-record, screenshot, or raw-memory dependency.
+**Complete for the accepted milestone:** deterministic native and
+forced-interpreter coverage now extends from orbit through basic control,
+navigation, and return to Starport. Planetary landing is deferred as a separate
+exploratory extension. Active work has moved to Workstream 6 qualification and
+packaging.
 
 ### Steps
 
@@ -702,17 +704,46 @@ crew-record, screenshot, or raw-memory dependency.
 **Owner:** release/integration agent
 **Dependencies:** selected correctness workstreams
 
+### Progress record
+
+- Qualification started from project
+  `0eba92012182b5c86599dfdc519b23d6650e890a` and framework
+  `a35c88fedacd3dabeb23cd827fdbded899d9d182`.
+- The existing Release executable is Mach-O 64-bit arm64.
+- Its dynamic dependencies are Homebrew SDL2 compatibility plus the macOS
+  system C++ and system libraries.
+- Documentation now lists the full SRAM and accepted gameplay regression
+  surface and distinguishes the accepted return-to-Starport endpoint from
+  exploratory planetary landing.
+- The Release target rebuilds successfully. All 12 Starflight tests pass:
+  resume policy, boot, two SRAM lifecycle tests, and native/interpreter launch,
+  ship-control, navigation, and return-to-Starport pairs.
+- The first full Starflight run exposed a stale save/reload harness expression:
+  runtime reached the staged `$01B336` setup and `$00B3AE` dispatcher, while
+  the harness still expected the former direct `$006E06` continuation text.
+  The assertion now checks the staged resume contract, and its focused rerun
+  passes.
+- All 16 framework tests pass when CTest inherits the documented Homebrew
+  LLVM/lld environment. Without that environment, the nested
+  `generated_input_paths` configure probe selects `/usr/bin/cc` and encounters
+  the known macOS 27 `arm64e.x1` system-linker defect.
+- `git diff --check` passes.
+- Fresh-clone qualification remains blocked until the documentation and SRAM
+  harness correction are committed so a clean checkout can reproduce the exact
+  qualified source.
+
 ### Steps
 
 1. Verify a clean Release arm64 build from a fresh checkout.
-2. Confirm executable architecture and dynamic dependencies.
-3. Run:
+2. **Complete for the current build:** Confirm executable architecture and
+   dynamic dependencies.
+3. **Complete in the current worktree:** Run:
    - full framework tests;
    - Starflight boot regression;
    - launch regression;
    - SRAM lifecycle regression;
    - selected gameplay regressions.
-4. Update documentation with:
+4. **Complete:** Update documentation with:
    - supported ROM identity;
    - build and run commands;
    - controls;
@@ -720,7 +751,7 @@ crew-record, screenshot, or raw-memory dependency.
    - accepted gameplay scope;
    - fallback status;
    - known limitations.
-5. Record build provenance.
+5. **Complete for the qualification start:** Record build provenance.
 6. Treat a macOS `.app` bundle as a separate optional task.
 
 ### Acceptance criteria

@@ -67,7 +67,7 @@ if(NOT load_stderr MATCHES "\\[SRAM\\] loaded 16384/16384 bytes")
     message(FATAL_ERROR "second process did not load 16 KiB SRAM\n${load_stderr}")
 endif()
 if(NOT load_stderr MATCHES
-        "Starflight resume loop returned at .*016BAE with saved A7 .*FFF000; continuing at dispatcher .*006E06")
+        "Starflight resume loop returned at .*016BAE with saved A7 .*FFF000; continuing via setup .*01B336 and dispatcher .*00B3AE")
     message(FATAL_ERROR "reloaded game did not complete the launch resume\n${load_stderr}")
 endif()
 if(load_stderr MATCHES "interior-label miss")

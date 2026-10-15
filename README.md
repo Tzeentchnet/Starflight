@@ -5,7 +5,8 @@ Genesis release of Starflight, built with
 [segagenesisrecomp](https://github.com/mstan/segagenesisrecomp).
 
 The first milestone targets an Apple Silicon executable that boots and supports
-the path from crew creation or loading through outfitting and starport launch.
+crew and ship persistence, starport launch, basic ship control and navigation,
+and a deterministic return to Starport.
 Static 68000 translations run against the framework's clean-room Genesis
 runtime; uncovered dynamic targets currently use its Tier-3 interpreter floor.
 The validated path now completes the starport exit sequence and reaches the
@@ -73,11 +74,14 @@ Native save-state restoration is mode-aware for the validated starport path.
 Corridor states resume at the per-frame corridor loop, while an in-progress
 station exit resumes at its launch loop and continues into the ship playfield.
 
-CTest runs the boot smoke test plus native and forced-interpreter launch,
-ship-control, and navigation regressions. The gameplay tests start from reset,
-construct their station-exit and ship state with symbolic WRAM values, and do
-not depend on local save-state files. The navigation path verifies sustained
-forward thrust while preserving ship mode and fuel.
+CTest runs the resume-policy test, boot smoke test, SRAM round-trip and genuine
+Operations save/reload tests, plus native and forced-interpreter launch,
+ship-control, navigation, and return-to-Starport regressions. The gameplay
+tests start from reset, construct their station-exit and ship state with
+symbolic WRAM values, and do not depend on local save-state files. The
+navigation path verifies sustained forward thrust while preserving ship mode
+and fuel. The return path uses the in-game crew command sequence and verifies
+the transition from ship mode to the Starport corridor.
 
 ## Reverse-engineering artifacts
 
@@ -101,9 +105,11 @@ interrupt vectors as functions. It refuses to overwrite an existing project.
 
 ## Current scope
 
-This is not yet a full-game decompilation. The first milestone allows
-interpreter fallback and does not include an app bundle, Intel support,
-widescreen, netplay, or a rebuildable assembly source.
+This is not yet a full-game decompilation. The accepted gameplay scope ends
+after a deterministic return to Starport; planetary landing and broader game
+progression remain exploratory. The first milestone allows observable Tier-3
+interpreter fallback outside validated paths and does not include an app
+bundle, Intel support, widescreen, netplay, or a rebuildable assembly source.
 
 The framework is licensed under PolyForm Noncommercial 1.0.0. See its
 `LICENSE.md` and `THIRD-PARTY-LICENSES.md` for applicable terms and notices.
