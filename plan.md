@@ -71,10 +71,13 @@ covered by deterministic discovery inputs.
 - Fresh semantic save/reload/launch evidence reports zero interior-label
   misses after promoting `$03C610`, `$03C536`, and `$03C544` as wrapper
   function entries.
-- The generic framework changes are available in the private mirror but have not
-  been prepared for or submitted to the public upstream repository.
-- Four dynamic-register JMP sites remain unresolved:
-  `$039962`, `$023140`, `$02152C`, and `$005434`.
+- The generic framework changes are prepared on the clean
+  `upstream/save-state-hardening` branch but have not been submitted to the
+  public upstream repository.
+- Three dynamic-register JMP sites remain uncharacterized:
+  `$023140`, `$02152C`, and `$005434`. `$039962` is statically characterized
+  and its 13 fixed targets are emitted, although the finder still reports the
+  site because it does not associate the prior record scan with `JMP (A0)`.
 - Local save states and Ghidra projects are intentionally ignored and cannot be
   handoff dependencies.
 
@@ -386,12 +389,37 @@ without promoting speculative dispatch entries.
    - `$FF9460` saved non-local return stack;
    - `$FF8332/$FF8333` controller state and edges.
 4. Trace the transition through `$01B2F8` into the first stable ship loop.
-5. Resolve or characterize the four dynamic-register JMP sites.
+5. **Partial:** Resolve or characterize the four dynamic-register JMP sites.
 6. Audit `late_extra` entries:
    - remove obsolete entries;
    - distinguish functions from interior labels;
    - retain `$016BAE` as a verified function boundary.
 7. Update provenance counts and evidence notes.
+
+### Dynamic-JMP characterization record
+
+- `$039962` is `JMP (A0)` at the end of `$0398C4`.
+- `$0398C4` scans 13 fixed 12-byte region-action records beginning at
+  `$039964`; when coordinate bounds match, `$03995E` loads A0 from the final
+  longword of the selected record.
+- The bounded handler set is:
+  `$039C68`, `$039C82`, `$039C9C`, `$039CCC`, `$039CE6`, `$039D00`,
+  `$039D30`, `$039D38`, `$03A306`, `$03A310`, `$03A31A`, `$03A324`, and
+  `$03A33E`.
+- All 13 targets disassemble as valid handler entries and are now explicit
+  table-derived `late_extra` seeds. Regeneration emits all 115/115 configured
+  entries with zero code-gate rejections.
+- The finder still reports four syntactically unresolved sites because its
+  manual jump-table support only associates recognized indexed-PC dispatch
+  patterns, not this record-scan dataflow.
+- `starflight_sram_game_save` passes after promotion in `58.82` seconds with
+  zero semantic lifecycle regressions.
+
+### Current next experiment
+
+Characterize `$023140` using the same bounded-dataflow standard: identify its
+source register, prove any fixed target set from ROM or tracked state, and do
+not add speculative function seeds.
 
 ### Acceptance criteria
 
