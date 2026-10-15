@@ -46,7 +46,8 @@ covered by deterministic discovery inputs.
   - `https://github.com/Tzeentchnet/Starflight-segagenesisrecomp`
 - The deterministic ship-control regression is committed in the project at
   `bb02082610e20a2d13451376bb9de78c0a7cf532`.
-- The framework remains clean at `e2046acffb` on
+- The framework remains clean at
+  `a35c88fedacd3dabeb23cd827fdbded899d9d182` on
   `upstream/save-state-hardening`.
 
 ### Important implementation state
@@ -55,7 +56,9 @@ covered by deterministic discovery inputs.
 - Save-state resume selection uses:
   - corridor frame loop: `$0130B0`
   - active station-exit loop: `$016BAE`
-  - post-loop continuation: `$006E06`
+  - post-loop continuation semantics: `$006E06`, represented after resume by
+    callable setup `$01B336`, ship loop `$00B3AE`, and stable redispatch
+    `$006DA4`
 - Saved A7 is preserved during resume.
 - Forced-interpreter resume uses an A7-neutral framed execution of the selected
   resume function, then continues at the configured dispatcher.
@@ -195,8 +198,9 @@ runtime files and one owner to Starflight-owned files.
 ### Current next experiment
 
 **Complete:** the validated generic framework changes were separated from
-Starflight-specific policy, committed at `e2046ac`, and pushed to the private
-mirror. Active investigation has moved to Workstream 4.
+Starflight-specific policy, with the original hardening at `e2046ac` and staged
+resume dispatch at `a35c88f`, and pushed to the private mirror. Active
+investigation has moved to Workstream 4.
 
 ### Steps
 
@@ -350,15 +354,16 @@ mirror. Active investigation has moved to Workstream 4.
   `generated_input_paths` run selected the host's malformed macOS 27 SDK;
   rerunning it with the same macOS 15.4 SDK used by the game build passed.
 - The game runner integration build succeeds after the extraction cleanup.
-- Dedicated branch `upstream/save-state-hardening` contains one commit,
-  `e2046ac` (`Harden cartridge save-state handling`), directly over
-  `upstream/master`.
-- `e2046ac` is pushed to
+- Dedicated branch `upstream/save-state-hardening` contains the original
+  `e2046ac` (`Harden cartridge save-state handling`) commit and follow-up
+  `a35c88f` (`Support staged resume dispatch`).
+- `a35c88f` is pushed to
   `origin/upstream/save-state-hardening` in the private framework mirror.
 - The clean upstream tree differs from the validated private `df73e8a` tree
   only by excluding the unrelated `.gitmodules` URL change.
-- Project commit `ae9dd9c` pins `segagenesisrecomp` at `e2046ac` with the
-  validated Starflight integration.
+- Project commit `acb6f4a` pins `segagenesisrecomp` at `a35c88f` and maps the
+  post-launch continuation to callable setup, ship-loop, and redispatch
+  entries.
 - Starflight `main` is pushed through `8a1e558` on `origin/main`; the pushed
   history also contains plan/extraction commit `9618212`.
 
@@ -373,6 +378,8 @@ mirror. Active investigation has moved to Workstream 4.
   paths.
 - Add cartridge-neutral scripting and regression coverage for deterministic
   resume construction.
+- Support a callable one-time post-resume setup, callable main loop, and stable
+  redispatch entry without invoking an interior continuation as a function.
 
 ### Current status
 
@@ -382,9 +389,11 @@ submission. The active reverse-engineering experiment is tracked in Workstream
 
 ### Acceptance criteria
 
-- **Satisfied:** Framework worktree is clean at dedicated commit `e2046ac`.
-- **Satisfied:** Full framework suite passes.
-- **Satisfied:** Project commit `ae9dd9c` pins that exact framework commit.
+- **Satisfied:** Framework worktree is clean at dedicated commit `a35c88f`.
+- **Satisfied:** The full framework suite passed at `e2046ac`; the staged
+  dispatch follow-up passes the focused Starflight resume-policy and
+  native/interpreter navigation regressions.
+- **Satisfied:** Project commit `acb6f4a` pins `a35c88f`.
 - **Satisfied:** The patch is generic and PR-ready.
 
 ## Workstream 4: Deepen Ghidra annotations and discovery
@@ -603,11 +612,39 @@ communications experiment.
   zero unsupported code-generation diagnostics.
 - A fifth fresh headless Ghidra import reproduces and saves all 40 tracked
   annotations without using the ignored local project.
+- The first bounded land probe established the real controller sequence from
+  orbit: C opens the crew-command menu, Down selects Navigator, A opens the
+  Navigator menu, and A selects Land. The ignored legacy state reaches the
+  planetary surface with that sequence.
+- Resume dispatch no longer calls interior continuation `$006E06` directly.
+  The generic runtime can now run a callable one-time setup before the callable
+  main loop and enter a separate stable dispatcher when that loop returns.
+  Starflight maps those roles to `$01B336`, `$00B3AE`, and `$006DA4`.
+- Focused preservation validation passes after that dispatch split:
+  - `starflight_resume_policy`;
+  - `starflight_navigation_native`;
+  - `starflight_navigation_interpreter`.
+- Implementation provenance:
+  - framework `a35c88fedacd3dabeb23cd827fdbded899d9d182`
+    (`Support staged resume dispatch`), pushed to
+    `origin/upstream/save-state-hardening`;
+  - project `acb6f4a6eaff1f4101878bc4c1e869e7fedd4fd0`
+    (`Stage Starflight resume dispatch`).
+- The minimized navigation fixture does not yet survive C. The command path
+  restores A7 from the game-owned non-local return slot at `$FF9460`; the
+  corridor normally records `$FFFFF4` there and retains a nested ROM return
+  chain ending at `$006E06`. Seeding only A7, `$FF9460`, the final return word,
+  or the observed tail of that chain still reaches computed target `$000000`.
+  Copying the nearby crew records does not change that result, so the remaining
+  dependency is the exact non-local unwind context rather than an assigned
+  Navigator.
 
 ### Current next experiment
 
-Use the accepted navigation fixture to characterize the smallest deterministic
-land/return-to-Starport transition without adding a local save-state dependency.
+Reconstruct the smallest corridor-produced non-local unwind context needed for
+the C command path, then replay the verified C, Down, A, A landing sequence in
+native and forced-interpreter execution without retaining legacy crew records
+or a local save-state dependency.
 
 ### Steps
 
