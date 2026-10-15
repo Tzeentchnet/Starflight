@@ -31,6 +31,14 @@ late_extra = [
   0x016004,
   0x016BAE,
   0x017A6A,
+  # Planetary landing interface entries observed on the accepted extension.
+  0x00223E,
+  0x0022D8,
+  0x002352,
+  0x00314A,
+  0x00CAA6,
+  0x014B68,
+  0x014D9C,
   # Fixed handler from the selector/list dispatch ending at $023140.
   0x023190,
   # Fixed targets from the 13-entry region-action table at $039964.

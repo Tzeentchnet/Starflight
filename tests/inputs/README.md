@@ -27,6 +27,12 @@ Navigator return path with Down, A, A. It verifies the transition from ship
 mode back to the Starport corridor in native and forced-interpreter execution
 without a crew-record, save-state, screenshot, or raw-memory dependency.
 
+`starflight_planetary_landing.input` reuses the command-capable constructor,
+selects a symbolic planet record, opens the Navigator landing interface, and
+descends to the surface. It verifies the transition from ship mode to
+planetary mode in native and forced-interpreter execution without a save-state,
+SRAM, screenshot, or raw-memory payload.
+
 `starflight_sram_write.input` and `starflight_sram_read.input` are paired by the
 `starflight_sram_roundtrip` CTest. The first process writes byte and word
 sentinels at both ends of the 16 KiB SRAM window and exits through normal
