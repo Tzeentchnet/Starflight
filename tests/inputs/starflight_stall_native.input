@@ -1,0 +1,5 @@
+LOAD_STATE native_save_2.bin
+WAIT 600
+SCREENSHOT starflight_stall_native.png
+DUMP_RAM starflight_stall_native.ram
+EXIT 0

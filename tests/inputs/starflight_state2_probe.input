@@ -1,0 +1,4 @@
+LOAD_STATE native_save_2.bin
+WAIT 120
+SCREENSHOT starflight_state2_probe.png
+EXIT 0

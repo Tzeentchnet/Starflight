@@ -1,0 +1,5 @@
+LOAD_STATE native_save_3.bin
+WAIT 600
+SCREENSHOT starflight_live_launch_resume.png
+DUMP_RAM starflight_live_launch_resume.ram
+EXIT 0

@@ -1,0 +1,11 @@
+LOAD_STATE native_save_2.bin
+WAIT 10
+PRESS LEFT 180
+WAIT 10
+PRESS C 2
+WAIT 300
+PRESS B 2
+WAIT 300
+SCREENSHOT starflight_launch_confirm_b.png
+DUMP_RAM starflight_launch_confirm_b.ram
+EXIT 0

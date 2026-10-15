@@ -1,0 +1,20 @@
+LOAD_STATE native_save_2.bin
+WAIT 10
+PRESS LEFT 180
+WAIT 10
+PRESS C 2
+WAIT 300
+PRESS C 2
+WAIT 1
+SCREENSHOT starflight_launch_transition_001.png
+DUMP_RAM starflight_launch_transition_001.ram
+WAIT 5
+SCREENSHOT starflight_launch_transition_006.png
+DUMP_RAM starflight_launch_transition_006.ram
+WAIT 24
+SCREENSHOT starflight_launch_transition_030.png
+DUMP_RAM starflight_launch_transition_030.ram
+WAIT 70
+SCREENSHOT starflight_launch_transition_100.png
+DUMP_RAM starflight_launch_transition_100.ram
+EXIT 0

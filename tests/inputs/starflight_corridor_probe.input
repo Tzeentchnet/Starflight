@@ -1,0 +1,9 @@
+LOAD_STATE native_save_2.bin
+WAIT 10
+PRESS LEFT 180
+WAIT 10
+SCREENSHOT starflight_corridor_left.png
+PRESS C 2
+WAIT 2400
+SCREENSHOT starflight_corridor_enter.png
+EXIT 0

@@ -1,0 +1,12 @@
+LOAD_STATE native_save_2.bin
+WAIT 10
+PRESS LEFT 180
+WAIT 10
+PRESS C 2
+WAIT 300
+PRESS C 2
+WAIT 900
+SAVE_STATE starflight_launch_stuck.bin
+SCREENSHOT starflight_launch_native.png
+DUMP_RAM starflight_launch_native.ram
+EXIT 0

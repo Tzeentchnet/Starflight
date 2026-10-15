@@ -1,0 +1,7 @@
+WAIT 1200
+PRESS START 180
+WAIT 300
+SCREENSHOT starflight_menu_1500.png
+WAIT 300
+SCREENSHOT starflight_menu_1800.png
+EXIT 0
