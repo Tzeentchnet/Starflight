@@ -666,6 +666,9 @@ communications experiment.
   JMP diagnostics.
 - A sixth fresh headless Ghidra import reproduces and saves all 41 tracked
   annotations without using the ignored local project.
+- Project implementation commit:
+  `6a4f35c5fc2b4cec2c0d89cad594f155d6c0492d`
+  (`Add deterministic Starport return regression`).
 
 ### Current next experiment
 
