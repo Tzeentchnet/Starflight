@@ -42,12 +42,15 @@ native/interpreter, and observable-fallback requirements.
 - Native and forced-interpreter planetary-landing regressions extend the
   command-capable constructor with one symbolic nearby-object record field and
   verify the transition from ship mode to planetary mode.
+- Native and forced-interpreter surface-exploration regressions add one
+  symbolic active-crew count, preserve planetary mode, and verify that
+  sustained surface travel consumes one fuel unit.
 - The launch recipe requires only three WRAM values and no local save-state,
   CPU-register, machine, VDP, screenshot, or ROM-derived payload.
 - Launch evidence reports zero dispatch misses, unsafe floor exits, and
   interior-label misses.
 - Starport control-flow labels and the `$016BAE` discovery boundary are tracked.
-- A fresh Ghidra import reproduces all 41 tracked annotations.
+- A fresh Ghidra import reproduces all 42 tracked annotations.
 - The project and framework are published privately:
   - `https://github.com/Tzeentchnet/Starflight`
   - `https://github.com/Tzeentchnet/Starflight-segagenesisrecomp`
@@ -568,6 +571,37 @@ communications experiment.
 
 ### Progress record
 
+- The original landing checkpoint was not a viable exploration state: with
+  `$FF97D3 = 0`, the surface appeared at frame 2699 but entered the
+  crew-killed path through `$03C66E` by frame 2819 while leaving game mode 4
+  stale.
+- A legacy local state was used only as a discovery oracle. Its 69 nonzero
+  bytes in `$FF9782-$FF9835` prevented the fatal transition; record- and
+  byte-level reduction isolated the sole required field as
+  `$FF97D3 = 1`.
+- Static generated-code inspection shows `$009E4A` branches away from the
+  planetary path when `$FF97D3` is zero, while `$01813E` decrements it.
+  The field is tracked neutrally as `ActiveCrewCount`.
+- With that one added symbolic byte, holding Up for 60 frames preserves
+  planetary mode and the active-crew count while changing ship fuel from
+  `$00C8` to `$00C7`.
+- `starflight_surface_exploration_native` and
+  `starflight_surface_exploration_interpreter` pass in `47.23` and `47.02`
+  seconds.
+- Four post-landing Tier-3 entries were promoted. Regeneration emits all 78/78
+  configured entries with zero code-gate rejections and reports zero
+  unsupported code-generation diagnostics.
+- Fresh forced-interpreter evidence over 2819 frames reports zero dispatch
+  misses, interior-label misses, unsafe-floor exits, and Tier-3 floor entries.
+- Post-change `starflight_planetary_landing_native` and
+  `starflight_planetary_landing_interpreter` continue to pass in `45.01` and
+  `45.03` seconds.
+- A fresh Ghidra 12.1.4 headless import reproduces and saves all 42 tracked
+  annotations, including `ActiveCrewCount`, without using the ignored local
+  project.
+- Project implementation commit:
+  `56d58b3aadf4c4b94a2791148684ff1a231f8aee`
+  (`Add deterministic surface exploration regression`).
 - Post-milestone planetary landing work reproduced the real interaction as C,
   Down, A, A to enter the landing interface, followed by sustained Down and A
   to land; the earlier record omitted those final interface controls.
@@ -708,10 +742,11 @@ communications experiment.
 ### Current next experiment
 
 **Complete as a post-milestone extension:** the symbolic orbit constructor now
-reaches the landing interface and planetary mode in matching native and
-forced-interpreter regressions without local save states. Surface exploration
-is the next smallest gameplay extension; the already-qualified
-return-to-Starport path remains the accepted first-milestone endpoint.
+reaches a viable planetary state and performs sustained surface travel in
+matching native and forced-interpreter regressions without local save states.
+The next smallest gameplay experiment is a second surface action or a
+deterministic return from the surface; the already-qualified return-to-Starport
+path remains the accepted first-milestone endpoint.
 
 ### Steps
 
