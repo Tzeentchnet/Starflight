@@ -381,14 +381,14 @@ submission. The active reverse-engineering experiment is tracked in Workstream
 
 ### Steps
 
-1. Import all tracked labels into a fresh headless Ghidra project.
+1. **Complete:** Import all tracked labels into a fresh headless Ghidra project.
 2. Verify and annotate:
    - `$006DA4` Starport dispatcher;
    - `$006E06` post-Starport continuation;
    - `$013018` corridor mode;
    - `$0130B0` corridor frame loop;
    - `$016BAE` station-exit loop.
-3. Annotate WRAM:
+3. **Complete:** Annotate WRAM:
    - `$FFC2A9` mode;
    - `$FF82EC`, `$FF95B8`, `$FFB5E0` exit state;
    - `$FF9460` saved non-local return stack;
@@ -474,11 +474,22 @@ submission. The active reverse-engineering experiment is tracked in Workstream
 - `starflight_sram_game_save`, `starflight_launch_native`, and
   `starflight_launch_interpreter` all pass after the reduction.
 
+### Ghidra reproducibility record
+
+- Ghidra 12.1.4 with OpenJDK 21 imported the verified ROM into a newly created
+  headless project using `scripts/setup-ghidra.sh`'s command sequence.
+- `ImportStarflightAnnotations.java` verified the ROM SHA-256, created the WRAM
+  block, imported all 21 tracked code labels, and saved the project
+  successfully without using the ignored local project database.
+- After adding the seven validated WRAM labels, a second fresh import reported
+  all 28 annotations and saved successfully. The WRAM set covers game mode,
+  three Starport exit-state fields, the non-local return stack, and controller
+  state/edge bytes.
+
 ### Current next experiment
 
-Import all 21 tracked labels into a fresh headless Ghidra project, verify the
-result without relying on the ignored local project database, and record the
-reproducible command and label count.
+Trace the transition through `$01B2F8` into the first stable ship loop and add
+only evidence-backed symbols.
 
 ### Acceptance criteria
 
