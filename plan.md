@@ -39,9 +39,10 @@ covered by deterministic discovery inputs.
 - The project and framework are published privately:
   - `https://github.com/Tzeentchnet/Starflight`
   - `https://github.com/Tzeentchnet/Starflight-segagenesisrecomp`
-- The published stabilization commits remain synchronized with their private
-  remotes. The current launch-regression work is validated but uncommitted in
-  both worktrees.
+- The deterministic ship-control regression is committed in the project at
+  `bb02082610e20a2d13451376bb9de78c0a7cf532`.
+- The framework remains clean at `e2046acffb` on
+  `upstream/save-state-hardening`.
 
 ### Important implementation state
 
@@ -556,6 +557,8 @@ native/interpreter checkpoints before expanding coverage.
   - `starflight_ship_control_interpreter` in `30.56` seconds.
 - Fresh forced-interpreter evidence reports zero dispatch misses,
   interior-label misses, unsafe floor exits, and Tier-3 floor entries.
+- Project implementation commit:
+  `bb02082610e20a2d13451376bb9de78c0a7cf532`.
 - An exploratory second C action reached game over and observed interior-label
   miss `$03C66E`; it is not on the accepted basic-control path and was not
   promoted as a function seed.
