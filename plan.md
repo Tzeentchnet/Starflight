@@ -312,7 +312,7 @@ separating them from Starflight-specific policy and fixtures.
    - forced-interpreter resume behavior.
 5. **Complete:** Run the full framework suite.
 6. **Complete:** Produce one clean framework commit suitable for an upstream PR.
-7. **Partial:** Update the project submodule pointer.
+7. **Complete:** Update the project submodule pointer.
 8. **Complete:** Prepare an upstream summary without ROM-derived data.
 
 ### Extraction record
@@ -338,8 +338,8 @@ separating them from Starflight-specific policy and fixtures.
   `upstream/master`.
 - The clean upstream tree differs from the validated private `df73e8a` tree
   only by excluding the unrelated `.gitmodules` URL change.
-- The project worktree now points `segagenesisrecomp` at `e2046ac`; the pointer
-  still needs to be committed with the validated Starflight integration.
+- Project commit `ae9dd9c` pins `segagenesisrecomp` at `e2046ac` with the
+  validated Starflight integration.
 
 ### Upstream summary
 
@@ -355,16 +355,16 @@ separating them from Starflight-specific policy and fixtures.
 
 ### Current next experiment
 
-Commit the validated Starflight integration and submodule pointer, excluding
-unrelated local artifacts, then verify the project worktree is clean apart
-from intentionally ignored evidence.
+Begin Workstream 4 by characterizing the first unresolved dynamic-register JMP
+site at `$039962`, recording its register source and reachable target set
+without promoting speculative dispatch entries.
 
 ### Acceptance criteria
 
-- Framework worktree is clean at a dedicated commit.
-- Full framework suite passes.
-- The project pins that exact framework commit.
-- The patch is generic and PR-ready.
+- **Satisfied:** Framework worktree is clean at dedicated commit `e2046ac`.
+- **Satisfied:** Full framework suite passes.
+- **Satisfied:** Project commit `ae9dd9c` pins that exact framework commit.
+- **Satisfied:** The patch is generic and PR-ready.
 
 ## Workstream 4: Deepen Ghidra annotations and discovery
 
