@@ -395,11 +395,11 @@ submission. The active reverse-engineering experiment is tracked in Workstream
    - `$FF8332/$FF8333` controller state and edges.
 4. Trace the transition through `$01B2F8` into the first stable ship loop.
 5. **Complete:** Resolve or characterize the four dynamic-register JMP sites.
-6. Audit `late_extra` entries:
+6. **Complete:** Audit `late_extra` entries:
    - remove obsolete entries;
    - distinguish functions from interior labels;
    - retain `$016BAE` as a verified function boundary.
-7. Update provenance counts and evidence notes.
+7. **Complete:** Update provenance counts and evidence notes.
 
 ### Dynamic-JMP characterization record
 
@@ -454,11 +454,31 @@ submission. The active reverse-engineering experiment is tracked in Workstream
   finder log remains a syntactic limitation rather than an unknown reachable
   target set.
 
+### Discovery-floor audit record
+
+- A static-only regeneration omitted all 103 gameplay `late_extra` seeds while
+  retaining the normal root and boot floors. It emitted 47 of those gameplay
+  entries independently and proved that 56 still require explicit floor
+  coverage.
+- The 47 static duplicates were removed. The retained floor contains 27
+  runtime-observed or accepted-path boundaries, 14 fixed table-derived
+  handlers, and 15 runtime-observed wrapper entries.
+- `$016BAE` remains an explicit accepted-path function boundary. `$023190` and
+  all 13 handlers reached through `$039962` remain explicit table-derived
+  seeds.
+- Annotation provenance still matches all 21 CSV labels and now records the
+  gameplay-floor category counts and the 47 removed duplicates.
+- Regeneration emits all 69/69 configured entries with zero code-gate
+  rejections and preserves the exact 1015 discovered / 1141 final function
+  counts. Unsupported code-generation diagnostics remain zero.
+- `starflight_sram_game_save`, `starflight_launch_native`, and
+  `starflight_launch_interpreter` all pass after the reduction.
+
 ### Current next experiment
 
-Audit the `late_extra` entries against current static discovery and runtime
-evidence, remove only entries proven obsolete or redundant, and update
-annotation provenance counts without weakening accepted-path coverage.
+Import all 21 tracked labels into a fresh headless Ghidra project, verify the
+result without relying on the ignored local project database, and record the
+reproducible command and label count.
 
 ### Acceptance criteria
 
