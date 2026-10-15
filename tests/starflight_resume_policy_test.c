@@ -38,6 +38,9 @@ int main(void)
 
     assert(resolve(0u) == 0x006DA4u);
     assert(resolve(2u) == 0x006DA4u);
+    assert(g_game_spec.resume_dispatch_setup_pc == 0x01B336u);
+    assert(g_game_spec.dispatch_main_loop_pc == 0x00B3AEu);
+    assert(g_game_spec.redispatch_main_loop_pc == 0x006DA4u);
 
     uint32_t pc = 0;
     assert(!game_spec_resolve_save_resume_pc(

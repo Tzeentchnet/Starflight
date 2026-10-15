@@ -59,7 +59,9 @@ const GameSpec g_game_spec = {
 
     .resume_main_loop_pc = 0x0130B0u,
     .save_resume_pc = starflight_save_resume_pc,
-    .dispatch_main_loop_pc = 0x006E06u,
+    .resume_dispatch_setup_pc = 0x01B336u,
+    .dispatch_main_loop_pc = 0x00B3AEu,
+    .redispatch_main_loop_pc = 0x006DA4u,
     .call_periodic = NULL,
 
     .on_post_reset = NULL,
