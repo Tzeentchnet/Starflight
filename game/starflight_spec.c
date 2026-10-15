@@ -33,7 +33,9 @@ static uint32_t starflight_save_resume_pc(uint8_t mode)
             return 0x016BAEu;
         return 0x0130B0u;
     }
-    return 0x006DA4u;
+    if (mode == 0u || mode == 2u)
+        return 0x006DA4u;
+    return GAME_RESUME_PC_UNSUPPORTED;
 }
 
 const GameSpec g_game_spec = {

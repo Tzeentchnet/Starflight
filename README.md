@@ -64,13 +64,18 @@ Default player-one controls are:
 | C | C |
 | Start | Return |
 
-The runtime writes the battery-backed save beside the executable as
-`Starflight (USA, Europe).srm`. Generated C and all build products remain under
-`build/`.
+The runtime derives the battery-backed save name from the configured game
+container and writes it beside the executable. The standard build therefore
+uses `build/macos-arm64/starflight.srm`. Generated C and all build products
+remain under `build/`.
 
 Native save-state restoration is mode-aware for the validated starport path.
 Corridor states resume at the per-frame corridor loop, while an in-progress
 station exit resumes at its launch loop and continues into the ship playfield.
+
+CTest runs the boot smoke test plus native and forced-interpreter launch
+regressions. The launch tests start from reset and construct their station-exit
+state with symbolic WRAM values; they do not depend on local save-state files.
 
 ## Reverse-engineering artifacts
 

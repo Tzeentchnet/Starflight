@@ -9,6 +9,8 @@
 013018,StarportCorridorMode,
 0130B0,StarportCorridorFrameLoop,
 016BAE,StarportLaunchExitLoop,
+037AA0,CommitCurrentGameToSram,
+037C94,WriteSaveImageToSramOddBytes,
 03BB42,TitleHelper_03BB42,
 03C162,TitleHelper_03C162,
 03C392,TitleHelper_03C392,

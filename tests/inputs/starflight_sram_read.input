@@ -1,0 +1,6 @@
+# Assert immediately so this checks host reload before guest startup can mutate SRAM.
+ASSERT_RAM8 200000 12
+ASSERT_RAM16 200002 3456
+ASSERT_RAM16 203FFE 78BC
+ASSERT_RAM8 203FFF BC
+WAIT 1

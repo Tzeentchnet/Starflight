@@ -26,13 +26,19 @@ covered by deterministic discovery inputs.
   the verified user-supplied ROM is added.
 - SRAM geometry is `$200000-$203FFF`, always visible beyond the 1 MiB ROM.
 - Framework SRAM mapping test passes.
-- Native and interpreter replay of the station-exit state reach the ship playfield
-  and display `ORBIT ESTABLISHED`.
+- Native and forced-interpreter launch regressions start from reset, construct the
+  station-exit state symbolically, continue through `$006E06`, and reach ship mode.
+- The launch recipe requires only three WRAM values and no local save-state,
+  CPU-register, machine, VDP, screenshot, or ROM-derived payload.
+- Launch evidence reports zero dispatch misses, unsafe floor exits, and
+  interior-label misses.
 - Starport control-flow labels and the `$016BAE` discovery boundary are tracked.
 - The project and framework are published privately:
   - `https://github.com/Tzeentchnet/Starflight`
   - `https://github.com/Tzeentchnet/Starflight-segagenesisrecomp`
-- Both worktrees are clean and synchronized with their private remotes.
+- The published stabilization commits remain synchronized with their private
+  remotes. The current launch-regression work is validated but uncommitted in
+  both worktrees.
 
 ### Important implementation state
 
@@ -42,16 +48,29 @@ covered by deterministic discovery inputs.
   - active station-exit loop: `$016BAE`
   - post-loop continuation: `$006E06`
 - Saved A7 is preserved during resume.
-- Forced-interpreter resume starts at the selected resume PC.
+- Forced-interpreter resume uses an A7-neutral framed execution of the selected
+  resume function, then continues at the configured dispatcher.
 - SRAM geometry is preserved across machine-state loads.
 - `$016BAE` is promoted in `starflight_gameplay_floor.toml`.
+- Input scripts support the generic `RESTART_GAME <pc>` directive for
+  deterministic state construction without a serialized save.
+- A genuine Operations save, 16 KiB host flush, second-process reload, symbolic
+  ship/crew verification, and post-reload launch are covered by CTest.
 
 ### Remaining risks
 
-- Existing launch probes depend on ignored local `native_save_*.bin` files.
-- `.srm` creation, flush, reload, and gameplay persistence are not verified.
-- Scripted `EXIT` may bypass normal SRAM cleanup.
-- Starport save-state selection covers only observed modes and lacks focused tests.
+- Legacy manual launch probes still depend on ignored local `native_save_*.bin`
+  files, but milestone launch validation no longer does.
+- The semantic persistence fixture uses symbolic `TEST`/`CREW` fields rather
+  than a fully traversed gameplay-created roster and outfitted ship.
+- Scripted `EXIT` may bypass normal SRAM cleanup; persistence regressions
+  intentionally use `--max-frames` cleanup instead.
+- Save-resume tests cover saved A7, native/interpreter resume-PC selection,
+  explicit unsupported-mode rejection, and cartridge-geometry preservation
+  across state load.
+- Fresh semantic save/reload/launch evidence reports zero interior-label
+  misses after promoting `$03C610`, `$03C536`, and `$03C544` as wrapper
+  function entries.
 - The generic framework changes are available in the private mirror but have not
   been prepared for or submitted to the public upstream repository.
 - Four dynamic-register JMP sites remain unresolved:
@@ -120,79 +139,152 @@ runtime files and one owner to Starflight-owned files.
 - No copyrighted or local state artifacts are tracked.
 - Baseline tests pass.
 
-## Workstream 1: Make launch validation reproducible — In progress
+## Workstream 1: Make launch validation reproducible — Core regression complete
 
 **Owner:** Starflight runtime/test agent
 **Dependencies:** Workstream 0
 
+### Completion record
+
+- The `native_save_3.bin` inventory reduced the station-exit constructor to three
+  symbolic WRAM writes after normal boot:
+  - mode `$FFC2A9 = 1`;
+  - exit state `$FF82EC = 1`;
+  - exit phase `$FF95B8 = $005A`.
+- No saved CPU register, machine, VDP, or raw save payload is required.
+- `starflight_launch_native` and `starflight_launch_interpreter` use the same
+  constructor and restart at `$016BAE`.
+- Both variants reach ship mode, and the resumed loop continues at `$006E06`.
+- `input_script_party`, `starflight_boot_smoke`, and both launch regressions pass.
+- Runtime evidence contains zero dispatch misses, unsafe floor exits, and
+  interior-label misses.
+- Forced-interpreter resume now detects the function return with framed,
+  A7-neutral execution instead of interpreting through an invalid return target.
+- Both launch variants seed saved A7 with `$FFF000` and require the resumed
+  `$016BAE` loop to report that exact value before continuing at `$006E06`.
+- `starflight_resume_policy` covers corridor, active station-exit, post-launch,
+  and explicit unsupported-mode selection. Unsupported modes now reject the
+  state instead of silently falling back to a Starport entry point.
+- Quickstate and rollback loads now share explicit SRAM-geometry preservation:
+  loaded SRAM bytes and runtime enable state are retained, while the current
+  cartridge's configured base, end, size, presence, and always-mapped policy
+  remain authoritative.
+- `genesis_bus_sram` covers a conflicting saved geometry and verifies that
+  Starflight's `$200000-$203FFF` 16 KiB mapping survives while saved SRAM bytes
+  and enable state load. The focused test passes in `0.26` seconds.
+- The runner rebuilds successfully, and post-change
+  `starflight_launch_native` and `starflight_launch_interpreter` pass in
+  `30.25` and `30.06` seconds.
+
 ### Current next experiment
 
-Inventory the save-state restore inputs used by `native_save_3.bin` and determine
-the smallest symbolic CPU/WRAM recipe that reaches `$016BAE` without embedding ROM
-or save data. Use that result to choose between a generated state constructor and
-a deterministic traversal from reset.
+Prepare the validated generic framework changes for upstream extraction,
+separating them from Starflight-specific policy and fixtures.
 
 ### Steps
 
-1. Replace ignored `native_save_3.bin` dependencies with one of:
+1. **Complete:** Replace ignored `native_save_3.bin` dependencies with one of:
    - deterministic scripted traversal from a fresh game;
    - a test-only state constructor using symbolic CPU/WRAM values;
    - a compact non-copyrightable state recipe generated at test time.
-2. Do not commit raw save states or ROM-derived framebuffer images.
-3. Add a launch regression proving:
+2. **Complete:** Do not commit raw save states or ROM-derived framebuffer images.
+3. **Complete:** Add a launch regression proving:
    - `$016BAE` executes as a generated function boundary;
    - the non-local return continues at `$006E06`;
    - `$FFC2A9` leaves Starport mode;
    - a stable ship-playfield condition is reached.
-4. Prefer semantic assertions over screenshots:
+4. **Complete:** Prefer semantic assertions over screenshots:
    - mode and state values;
    - execution of verified ship routines;
    - zero dispatch misses;
    - no unsafe floor fallback.
-5. Run native and `GENESIS_FORCE_INTERP=1` variants from the same generated state.
-6. Compare selected WRAM and control-flow outcomes.
-7. Add framework tests for:
-   - preserving saved A7;
-   - honoring forced-interpreter resume PC;
-   - preserving cartridge geometry across state load.
-8. Review Starport resume edge cases and fail explicitly for unsupported states.
+5. **Complete:** Run native and `GENESIS_FORCE_INTERP=1` variants from the same
+   generated state.
+6. **Complete:** Compare selected WRAM and control-flow outcomes.
+7. **Partial:** Add framework tests for:
+   - **Complete:** preserving saved A7;
+   - **Complete:** honoring forced-interpreter resume PC;
+   - **Remaining:** preserving cartridge geometry across state load.
+8. **Complete:** Review observed Starport resume modes and fail explicitly for
+   unsupported mode values.
 
 ### Acceptance criteria
 
-- A clean checkout runs the launch regression without local `.bin` files.
-- Native and interpreter execution reach the same ship-mode checkpoint.
-- No interior-label miss occurs at `$016BAE`.
-- Tests fail if A7 is reset or continuation changes from `$006E06`.
+- **Satisfied:** The launch regression has no local `.bin` dependency.
+- **Satisfied:** Native and interpreter execution reach the same ship-mode
+  checkpoint.
+- **Satisfied:** No interior-label miss occurs at `$016BAE`.
+- **Satisfied:** Continuation changes from `$006E06` or loss of saved A7
+  `$FFF000` fail both launch variants.
+- **Pending final qualification:** rerun the launch regressions from a fresh
+  recursive clone after the current project and framework changes are committed.
 
 ## Workstream 2: Verify battery-backed SRAM
 
 **Owner:** persistence agent
 **Dependencies:** Workstream 0
 
+### Progress record
+
+- `starflight_sram_roundtrip` now starts without an `.srm`, writes byte and word
+  sentinels at `$200000`, `$200002`, `$203FFE`, and `$203FFF`, waits for the
+  normal autosave path, and exits through `--max-frames` cleanup rather than
+  scripted `EXIT`.
+- The first process creates exactly 16 KiB at
+  `build/macos-arm64/starflight.srm`; a second process loads all 16 KiB and
+  verifies the sentinels before guest startup can alter SRAM.
+- The round-trip fixture covers first/last byte, first/last word, and
+  out-of-range writes through the real bus; `genesis_bus_sram` retains its
+  always-mapped and out-of-range mapping checks.
+- The exact commit action is Operations (`START`) -> `SAVE AS GAME 1` (`A`).
+  A runtime trace observed 4,096 odd-byte writes across `$200001-$201FFF` from
+  `$037AA0`/`$037C94`, followed by the normal 16 KiB host flush.
+- `starflight_sram_game_save` reproduces that genuine game action from the
+  symbolic corridor constructor, without a local save-state dependency or
+  scripted `EXIT`.
+- The save regression now assigns symbolic `TEST` ship and `CREW` crew names.
+  A second process selects GAME 1 from the title menu, verifies both canonical
+  WRAM fields, and launches through `$016BAE` to ship mode.
+- Focused validation passes:
+  - `genesis_bus_sram`;
+  - `starflight_sram_roundtrip`;
+  - `starflight_sram_game_save`.
+- Regeneration emits `func_03C610`, `func_03C536`, and `func_03C544`.
+  Fresh semantic save/reload/launch evidence records `entries: 0` in
+  `interior_label_misses.toml`.
+- Post-promotion preservation validation passes:
+  - `starflight_sram_game_save` in `58.83` seconds;
+  - `starflight_sram_roundtrip` in `21.41` seconds;
+  - `starflight_launch_native` in `30.06` seconds;
+  - `starflight_launch_interpreter` in `30.07` seconds.
+
 ### Steps
 
-1. Identify the exact in-game operation that commits crew and ship data.
-2. Test through a normal cleanup path rather than scripted `EXIT`.
-3. Verify:
-   - no prior `.srm`;
-   - mutation of `$200000-$203FFF`;
-   - dirty detection;
-   - creation of a 16 KiB `.srm`;
-   - loading in a second process;
-   - restored crew and ship state;
-   - successful launch after reload.
-4. Test byte and word accesses at the first and last SRAM addresses.
-5. Test out-of-range behavior.
+1. **Complete:** Identify the exact in-game operation that commits crew and ship data.
+2. **Complete:** Test through a normal cleanup path rather than scripted `EXIT`.
+3. **Complete:** Verify:
+   - **Complete:** no prior `.srm`;
+   - **Complete:** mutation of `$200000-$203FFF`;
+   - **Complete:** dirty detection;
+   - **Complete:** creation of a 16 KiB `.srm`;
+   - **Complete:** loading in a second process;
+   - **Complete:** restored symbolic crew and ship state;
+   - **Complete:** successful launch after reload.
+4. **Complete:** Test byte and word accesses at the first and last SRAM addresses.
+5. **Complete:** Test out-of-range behavior.
 6. Retain gated SRAM behavior for cartridges whose save range overlaps ROM.
-7. Verify state loading restores SRAM content without replacing cartridge geometry.
+7. **Complete:** Verify state loading restores SRAM content without replacing
+   cartridge geometry.
 8. Document save location, size, cleanup behavior, and limitations.
 
 ### Acceptance criteria
 
 - A genuine save and normal shutdown produce a 16 KiB `.srm`.
-- A fresh process reloads usable crew and ship state.
+- **Satisfied:** A fresh process reloads symbolic crew and ship state.
 - SRAM, boot, and launch regressions pass.
 - Results do not rely on a scripted hard exit.
+- **Satisfied:** The extended save/reload/launch path has zero interior-label
+  misses.
 
 ## Workstream 3: Extract and upstream framework changes
 
@@ -202,8 +294,8 @@ a deterministic traversal from reset.
 
 ### Steps
 
-1. Separate generic engine changes from Starflight-specific policy.
-2. Review:
+1. **Complete:** Separate generic engine changes from Starflight-specific policy.
+2. **Complete:** Review:
    - `runner/video/genesis_bus.c`
    - `runner/video/genesis_bus.h`
    - `runner/video/genesis_machine.c`
@@ -211,17 +303,61 @@ a deterministic traversal from reset.
    - `runner/glue.c`
    - `runner/cosim_state.c`
    - related framework tests.
-3. Ensure APIs and comments are cartridge-generic.
-4. Test:
+3. **Complete:** Ensure APIs and comments are cartridge-generic.
+4. **Complete:** Test:
    - header-declared gated SRAM;
    - explicit always-mapped SRAM beyond ROM;
    - geometry preservation during state load;
    - resume A7 behavior;
    - forced-interpreter resume behavior.
-5. Run the full framework suite.
-6. Produce one clean framework commit suitable for an upstream PR.
-7. Update the project submodule pointer.
-8. Prepare an upstream summary without ROM-derived data.
+5. **Complete:** Run the full framework suite.
+6. **Complete:** Produce one clean framework commit suitable for an upstream PR.
+7. **Partial:** Update the project submodule pointer.
+8. **Complete:** Prepare an upstream summary without ROM-derived data.
+
+### Extraction record
+
+- The uncommitted framework delta is confined to 11 generic runner/test files
+  and separates into three reviewable units:
+  1. resume-PC resolution, unsupported-mode rejection, saved-A7 continuation,
+     and framed forced-interpreter resume;
+  2. generic `WRITE_CPU_A7` and `RESTART_GAME` deterministic-script directives;
+  3. SRAM geometry preservation across quickstate and rollback loads.
+- Starflight-specific resume mappings, symbolic fixtures, ROM addresses, and
+  semantic save/load scripts remain in the game workspace and are not part of
+  the framework delta.
+- Geometry preservation depends on private framework commit `4af9a8e`
+  (`Support always-mapped cartridge SRAM`). Private commit `5f71868` only
+  changes canonical submodule URLs and is unrelated to the runtime patch.
+- The full framework suite passes all 16 tests. The initial
+  `generated_input_paths` run selected the host's malformed macOS 27 SDK;
+  rerunning it with the same macOS 15.4 SDK used by the game build passed.
+- The game runner integration build succeeds after the extraction cleanup.
+- Dedicated branch `upstream/save-state-hardening` contains one commit,
+  `e2046ac` (`Harden cartridge save-state handling`), directly over
+  `upstream/master`.
+- The clean upstream tree differs from the validated private `df73e8a` tree
+  only by excluding the unrelated `.gitmodules` URL change.
+- The project worktree now points `segagenesisrecomp` at `e2046ac`; the pointer
+  still needs to be committed with the validated Starflight integration.
+
+### Upstream summary
+
+- Support cartridge SRAM ranges that are permanently mapped beyond ROM.
+- Preserve current cartridge SRAM geometry while restoring saved SRAM bytes
+  and runtime mapping state in quickstate and rollback loads.
+- Centralize resume-PC selection and allow games to reject restored modes that
+  cannot resume safely.
+- Preserve the saved stack pointer through native and framed-interpreter resume
+  paths.
+- Add cartridge-neutral scripting and regression coverage for deterministic
+  resume construction.
+
+### Current next experiment
+
+Commit the validated Starflight integration and submodule pointer, excluding
+unrelated local artifacts, then verify the project worktree is clean apart
+from intentionally ignored evidence.
 
 ### Acceptance criteria
 

@@ -57,6 +57,14 @@ target_link_libraries(StarflightRecomp PRIVATE SDL2::SDL2main SDL2::SDL2)
 genesisrecomp_runner_target(StarflightRecomp)
 
 if(BUILD_TESTING)
+    add_executable(starflight_resume_policy_test
+        tests/starflight_resume_policy_test.c
+        "${STARFLIGHT_GAME_DIR}/starflight_spec.c")
+    target_include_directories(starflight_resume_policy_test PRIVATE
+        "${RUNNER_ROOT}"
+        "${RUNNER_ROOT}/include")
+    add_test(NAME starflight_resume_policy COMMAND starflight_resume_policy_test)
+
     add_test(
         NAME starflight_boot_smoke
         COMMAND StarflightRecomp
@@ -68,5 +76,54 @@ if(BUILD_TESTING)
             "${STARFLIGHT_GAME_DIR}/starflight.gen")
     set_tests_properties(starflight_boot_smoke PROPERTIES
         ENVIRONMENT "SDL_VIDEODRIVER=dummy;SDL_AUDIODRIVER=dummy"
+        RESOURCE_LOCK starflight_runtime
         TIMEOUT 60)
+
+    add_test(
+        NAME starflight_sram_roundtrip
+        COMMAND "${CMAKE_COMMAND}"
+            "-DSTARFLIGHT_EXE=$<TARGET_FILE:StarflightRecomp>"
+            "-DSTARFLIGHT_GAME=${STARFLIGHT_GAME_DIR}/starflight.gen"
+            "-DSRAM_WRITE_SCRIPT=${CMAKE_CURRENT_SOURCE_DIR}/tests/inputs/starflight_sram_write.input"
+            "-DSRAM_READ_SCRIPT=${CMAKE_CURRENT_SOURCE_DIR}/tests/inputs/starflight_sram_read.input"
+            "-DSRAM_PATH=$<TARGET_FILE_DIR:StarflightRecomp>/starflight.srm"
+            -P "${CMAKE_CURRENT_SOURCE_DIR}/tests/run_sram_roundtrip.cmake")
+    set_tests_properties(starflight_sram_roundtrip PROPERTIES
+        RESOURCE_LOCK starflight_runtime
+        TIMEOUT 60)
+
+    add_test(
+        NAME starflight_sram_game_save
+        COMMAND "${CMAKE_COMMAND}"
+            "-DSTARFLIGHT_EXE=$<TARGET_FILE:StarflightRecomp>"
+            "-DSTARFLIGHT_GAME=${STARFLIGHT_GAME_DIR}/starflight.gen"
+            "-DSRAM_SAVE_SCRIPT=${CMAKE_CURRENT_SOURCE_DIR}/tests/inputs/starflight_sram_game_save.input"
+            "-DSRAM_LOAD_SCRIPT=${CMAKE_CURRENT_SOURCE_DIR}/tests/inputs/starflight_sram_game_load.input"
+            "-DSRAM_PATH=$<TARGET_FILE_DIR:StarflightRecomp>/starflight.srm"
+            -P "${CMAKE_CURRENT_SOURCE_DIR}/tests/run_sram_game_save.cmake")
+    set_tests_properties(starflight_sram_game_save PROPERTIES
+        RESOURCE_LOCK starflight_runtime
+        TIMEOUT 90)
+
+    foreach(mode IN ITEMS native interpreter)
+        add_test(
+            NAME starflight_launch_${mode}
+            COMMAND StarflightRecomp
+                --no-launcher
+                --turbo
+                --fresh-evidence
+                --max-frames 1900
+                --input-script "${CMAKE_CURRENT_SOURCE_DIR}/tests/inputs/starflight_launch_regression.input"
+                "${STARFLIGHT_GAME_DIR}/starflight.gen")
+        if(mode STREQUAL "interpreter")
+            set(force_interp 1)
+        else()
+            set(force_interp 0)
+        endif()
+        set_tests_properties(starflight_launch_${mode} PROPERTIES
+            ENVIRONMENT "SDL_VIDEODRIVER=dummy;SDL_AUDIODRIVER=dummy;GENESIS_FORCE_INTERP=${force_interp}"
+            PASS_REGULAR_EXPRESSION "Starflight resume loop returned at \\$016BAE with saved A7 \\$FFF000; continuing at dispatcher \\$006E06"
+            RESOURCE_LOCK starflight_runtime
+            TIMEOUT 60)
+    endforeach()
 endif()

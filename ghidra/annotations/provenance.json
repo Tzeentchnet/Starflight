@@ -3,11 +3,12 @@
     "source": "manual ROM analysis and runtime Tier-3 coverage",
     "rom_sha256": "31b9d25fcde71c9707a408d58ca229a3b87c1e4fd1300cc407f2ac1d13f15250",
     "product": "GM T-50216 -00",
-    "code_labels": 19,
+    "code_labels": 21,
     "notes": [
       "Reset and interrupt labels come from the ROM vector table.",
       "ProbeCartridgeSaveRAM was validated by 68000 disassembly at ROM $001E80.",
       "Starport and launch labels were validated from the live launch save-state stack and native/interpreter replay through ORBIT ESTABLISHED.",
+      "Save routines $037AA0 and $037C94 were validated by an SRAM write trace from Operations -> SAVE AS GAME 1; the copy routine wrote 4096 odd bytes across $200001-$201FFF.",
       "TitleHelper labels are callable boundaries validated from runtime floor evidence and 68000 disassembly."
     ]
   }
