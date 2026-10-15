@@ -4,7 +4,7 @@
     "rom_sha256": "31b9d25fcde71c9707a408d58ca229a3b87c1e4fd1300cc407f2ac1d13f15250",
     "product": "GM T-50216 -00",
     "code_labels": 24,
-    "wram_labels": 7,
+    "wram_labels": 12,
     "discovery_floor": {
       "gameplay_entries": 56,
       "runtime_or_boundary_entries": 27,
@@ -20,7 +20,8 @@
       "TitleHelper labels are callable boundaries validated from runtime floor evidence and 68000 disassembly.",
       "The gameplay discovery floor was audited against a static-only regeneration: 47 independently emitted duplicates were removed and 56 runtime, boundary, table-derived, or wrapper entries remain.",
       "A fresh Ghidra 12.1.4 headless import reproduced all 31 tracked annotations without the ignored local project: 24 code labels and seven validated WRAM state labels.",
-      "Forced-interpreter executed-PC evidence corrected the ship transition trace: the accepted launch calls $01B336 and enters the stable $00B3AE frame loop; $01B2F8 is the separate state-preserving mode-2 entry."
+      "Forced-interpreter executed-PC evidence corrected the ship transition trace: the accepted launch calls $01B336 and enters the stable $00B3AE frame loop; $01B2F8 is the separate state-preserving mode-2 entry.",
+      "Static ship-control analysis added five neutral WRAM labels: the three-byte navigation location tuple initialized by $009016, the fuel word initialized to 200 by $00AB9E, and the nearby-object count rebuilt by $00BE10."
     ]
   }
 }
