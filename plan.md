@@ -71,9 +71,9 @@ covered by deterministic discovery inputs.
 - Fresh semantic save/reload/launch evidence reports zero interior-label
   misses after promoting `$03C610`, `$03C536`, and `$03C544` as wrapper
   function entries.
-- The generic framework changes are prepared on the clean
-  `upstream/save-state-hardening` branch but have not been submitted to the
-  public upstream repository.
+- The generic framework changes are prepared and pushed to the private mirror
+  on `upstream/save-state-hardening`; submission to the public upstream
+  repository remains pending.
 - Three dynamic-register JMP sites remain uncharacterized:
   `$023140`, `$02152C`, and `$005434`. `$039962` is statically characterized
   and its 13 fixed targets are emitted, although the finder still reports the
@@ -181,8 +181,9 @@ runtime files and one owner to Starflight-owned files.
 
 ### Current next experiment
 
-Prepare the validated generic framework changes for upstream extraction,
-separating them from Starflight-specific policy and fixtures.
+**Complete:** the validated generic framework changes were separated from
+Starflight-specific policy, committed at `e2046ac`, and pushed to the private
+mirror. Active investigation has moved to Workstream 4.
 
 ### Steps
 
@@ -339,10 +340,14 @@ separating them from Starflight-specific policy and fixtures.
 - Dedicated branch `upstream/save-state-hardening` contains one commit,
   `e2046ac` (`Harden cartridge save-state handling`), directly over
   `upstream/master`.
+- `e2046ac` is pushed to
+  `origin/upstream/save-state-hardening` in the private framework mirror.
 - The clean upstream tree differs from the validated private `df73e8a` tree
   only by excluding the unrelated `.gitmodules` URL change.
 - Project commit `ae9dd9c` pins `segagenesisrecomp` at `e2046ac` with the
   validated Starflight integration.
+- Starflight `main` is pushed through `8a1e558` on `origin/main`; the pushed
+  history also contains plan/extraction commit `9618212`.
 
 ### Upstream summary
 
