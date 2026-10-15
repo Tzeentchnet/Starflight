@@ -1,0 +1,15 @@
+# Runtime evidence from the boot and title-input smoke tests. Each address was
+# independently disassembled and validated as a callable routine boundary.
+[functions]
+extra = [
+  0x0027BE,
+  0x03BB42,
+  0x03C162,
+  0x03C392,
+  0x03C3B2,
+  0x03C3C2,
+  0x03C3D0,
+  0x03C3DE,
+  0x03C3EC,
+  0x03C61E,
+]
