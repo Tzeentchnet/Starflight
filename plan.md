@@ -1,4 +1,4 @@
-# Starflight Genesis Recomp: Future Work Plan
+# Starflight Genesis Recomp: Execution Plan
 
 ## Goal
 
@@ -11,7 +11,7 @@ The ROM remains user-supplied. Tier-3 interpreter fallback remains acceptable, b
 fallback and dynamic control flow on the accepted path must remain observable and
 covered by deterministic discovery inputs.
 
-## Current baseline
+## Current baseline (2026-10-14)
 
 ### Verified
 
@@ -22,11 +22,17 @@ covered by deterministic discovery inputs.
   - CRC32: `D550C928`
 - Native arm64 build works with Homebrew LLVM/lld.
 - Boot/title framebuffer smoke test passes.
+- A fresh recursive clone configures, builds, and passes the boot smoke test after
+  the verified user-supplied ROM is added.
 - SRAM geometry is `$200000-$203FFF`, always visible beyond the 1 MiB ROM.
 - Framework SRAM mapping test passes.
 - Native and interpreter replay of the station-exit state reach the ship playfield
   and display `ORBIT ESTABLISHED`.
 - Starport control-flow labels and the `$016BAE` discovery boundary are tracked.
+- The project and framework are published privately:
+  - `https://github.com/Tzeentchnet/Starflight`
+  - `https://github.com/Tzeentchnet/Starflight-segagenesisrecomp`
+- Both worktrees are clean and synchronized with their private remotes.
 
 ### Important implementation state
 
@@ -42,12 +48,12 @@ covered by deterministic discovery inputs.
 
 ### Remaining risks
 
-- The top-level repository has no commits yet.
-- The framework submodule is dirty with SRAM and save-state fixes.
 - Existing launch probes depend on ignored local `native_save_*.bin` files.
 - `.srm` creation, flush, reload, and gameplay persistence are not verified.
 - Scripted `EXIT` may bypass normal SRAM cleanup.
 - Starport save-state selection covers only observed modes and lacks focused tests.
+- The generic framework changes are available in the private mirror but have not
+  been prepared for or submitted to the public upstream repository.
 - Four dynamic-register JMP sites remain unresolved:
   `$039962`, `$023140`, `$02152C`, and `$005434`.
 - Local save states and Ghidra projects are intentionally ignored and cannot be
@@ -55,8 +61,8 @@ covered by deterministic discovery inputs.
 
 ## Dependencies and execution order
 
-1. Stabilize and commit both repositories.
-2. In parallel:
+1. Stabilize and commit both repositories. **Complete.**
+2. In parallel, beginning with launch validation:
    - make launch validation reproducible;
    - verify SRAM persistence;
    - deepen Ghidra annotations and discovery.
@@ -67,11 +73,24 @@ covered by deterministic discovery inputs.
 Agents must not edit the same files concurrently. Assign one owner to framework
 runtime files and one owner to Starflight-owned files.
 
-## Workstream 0: Stabilize the repositories
+## Workstream 0: Stabilize the repositories — Complete
 
 **Owner:** integration agent
 **Dependencies:** none
 **Blocks:** all other work
+
+### Completion record
+
+- Project stabilization baseline: `50e6a9821feabf5bac3d2daaec27be9d9219088c`.
+- Framework revision: `5f718681a9206c090bcd2182903c864c987217b0`.
+- Manual save-state-dependent scripts are classified in `tests/inputs/README.md`.
+- The ignore policy excludes ROMs, save files, screenshots, runtime evidence,
+  generated builds, and local Ghidra databases.
+- No ROM, save-state, screenshot, generated build, or Ghidra database artifact is
+  tracked.
+- `starflight_boot_smoke` and `genesis_bus_sram` pass.
+- A fresh recursive clone fetched the pinned framework and all nested submodules,
+  configured, built `StarflightRecomp`, and passed `starflight_boot_smoke`.
 
 ### Steps
 
@@ -101,10 +120,17 @@ runtime files and one owner to Starflight-owned files.
 - No copyrighted or local state artifacts are tracked.
 - Baseline tests pass.
 
-## Workstream 1: Make launch validation reproducible
+## Workstream 1: Make launch validation reproducible — In progress
 
 **Owner:** Starflight runtime/test agent
 **Dependencies:** Workstream 0
+
+### Current next experiment
+
+Inventory the save-state restore inputs used by `native_save_3.bin` and determine
+the smallest symbolic CPU/WRAM recipe that reaches `$016BAE` without embedding ROM
+or save data. Use that result to choose between a generated state constructor and
+a deterministic traversal from reset.
 
 ### Steps
 
