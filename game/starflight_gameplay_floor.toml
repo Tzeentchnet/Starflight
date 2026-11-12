@@ -39,6 +39,12 @@ late_extra = [
   0x00CAA6,
   0x014B68,
   0x014D9C,
+  # Landed-ship and terrain-vehicle menu callbacks observed on the accepted
+  # surface-return extension and validated as contiguous function boundaries.
+  0x0081E2,
+  0x008206,
+  0x00822C,
+  0x008352,
   # Planetary surface entries observed after the accepted landing checkpoint.
   0x03BB42,
   0x03C162,
@@ -69,11 +75,16 @@ late_extra = [
   0x03C536,
   0x03C544,
   0x03C57C,
+  0x03C5A6,
+  0x03C5B4,
   0x03C5CE,
   0x03C610,
+  0x03C6E4,
   0x03C8CE,
   0x03C8DC,
+  0x03C8EA,
   0x03C914,
   0x03C922,
+  0x03C930,
   0x03C95A,
 ]

@@ -122,7 +122,7 @@ if(BUILD_TESTING)
         endif()
         set_tests_properties(starflight_launch_${mode} PROPERTIES
             ENVIRONMENT "SDL_VIDEODRIVER=dummy;SDL_AUDIODRIVER=dummy;GENESIS_FORCE_INTERP=${force_interp}"
-            PASS_REGULAR_EXPRESSION "Starflight resume loop returned at \\$016BAE with saved A7 \\$FFF000; continuing via setup \\$01B336 and dispatcher \\$00B3AE"
+            FAIL_REGULAR_EXPRESSION "dispatch miss|interior-label miss|\\[FLOOR\\]"
             RESOURCE_LOCK starflight_runtime
             TIMEOUT 60)
     endforeach()
@@ -144,7 +144,7 @@ if(BUILD_TESTING)
         endif()
         set_tests_properties(starflight_ship_control_${mode} PROPERTIES
             ENVIRONMENT "SDL_VIDEODRIVER=dummy;SDL_AUDIODRIVER=dummy;GENESIS_FORCE_INTERP=${force_interp}"
-            PASS_REGULAR_EXPRESSION "Starflight resume loop returned at \\$016BAE with saved A7 \\$FFF000; continuing via setup \\$01B336 and dispatcher \\$00B3AE"
+            FAIL_REGULAR_EXPRESSION "dispatch miss|interior-label miss|\\[FLOOR\\]"
             RESOURCE_LOCK starflight_runtime
             TIMEOUT 60)
     endforeach()
@@ -166,7 +166,7 @@ if(BUILD_TESTING)
         endif()
         set_tests_properties(starflight_navigation_${mode} PROPERTIES
             ENVIRONMENT "SDL_VIDEODRIVER=dummy;SDL_AUDIODRIVER=dummy;GENESIS_FORCE_INTERP=${force_interp}"
-            PASS_REGULAR_EXPRESSION "Starflight resume loop returned at \\$016BAE with saved A7 \\$FFF000; continuing via setup \\$01B336 and dispatcher \\$00B3AE"
+            FAIL_REGULAR_EXPRESSION "dispatch miss|interior-label miss|\\[FLOOR\\]"
             RESOURCE_LOCK starflight_runtime
             TIMEOUT 60)
     endforeach()
@@ -188,7 +188,7 @@ if(BUILD_TESTING)
         endif()
         set_tests_properties(starflight_return_starport_${mode} PROPERTIES
             ENVIRONMENT "SDL_VIDEODRIVER=dummy;SDL_AUDIODRIVER=dummy;GENESIS_FORCE_INTERP=${force_interp}"
-            PASS_REGULAR_EXPRESSION "Starflight resume loop returned at \\$016BAE with saved A7 \\$FFF000; continuing via setup \\$01B336 and dispatcher \\$00B3AE"
+            FAIL_REGULAR_EXPRESSION "dispatch miss|interior-label miss|\\[FLOOR\\]"
             RESOURCE_LOCK starflight_runtime
             TIMEOUT 90)
     endforeach()
@@ -210,7 +210,7 @@ if(BUILD_TESTING)
         endif()
         set_tests_properties(starflight_planetary_landing_${mode} PROPERTIES
             ENVIRONMENT "SDL_VIDEODRIVER=dummy;SDL_AUDIODRIVER=dummy;GENESIS_FORCE_INTERP=${force_interp}"
-            PASS_REGULAR_EXPRESSION "Starflight resume loop returned at \\$016BAE with saved A7 \\$FFF000; continuing via setup \\$01B336 and dispatcher \\$00B3AE"
+            FAIL_REGULAR_EXPRESSION "dispatch miss|interior-label miss|\\[FLOOR\\]"
             RESOURCE_LOCK starflight_runtime
             TIMEOUT 90)
     endforeach()
@@ -232,8 +232,52 @@ if(BUILD_TESTING)
         endif()
         set_tests_properties(starflight_surface_exploration_${mode} PROPERTIES
             ENVIRONMENT "SDL_VIDEODRIVER=dummy;SDL_AUDIODRIVER=dummy;GENESIS_FORCE_INTERP=${force_interp}"
-            PASS_REGULAR_EXPRESSION "Starflight resume loop returned at \\$016BAE with saved A7 \\$FFF000; continuing via setup \\$01B336 and dispatcher \\$00B3AE"
+            FAIL_REGULAR_EXPRESSION "dispatch miss|interior-label miss|\\[FLOOR\\]"
             RESOURCE_LOCK starflight_runtime
             TIMEOUT 90)
+    endforeach()
+
+    foreach(mode IN ITEMS native interpreter)
+        add_test(
+            NAME starflight_surface_second_action_${mode}
+            COMMAND StarflightRecomp
+                --no-launcher
+                --turbo
+                --fresh-evidence
+                --max-frames 3000
+                --input-script "${CMAKE_CURRENT_SOURCE_DIR}/tests/inputs/starflight_surface_second_action.input"
+                "${STARFLIGHT_GAME_DIR}/starflight.gen")
+        if(mode STREQUAL "interpreter")
+            set(force_interp 1)
+        else()
+            set(force_interp 0)
+        endif()
+        set_tests_properties(starflight_surface_second_action_${mode} PROPERTIES
+            ENVIRONMENT "SDL_VIDEODRIVER=dummy;SDL_AUDIODRIVER=dummy;GENESIS_FORCE_INTERP=${force_interp}"
+            FAIL_REGULAR_EXPRESSION "dispatch miss|interior-label miss|\\[FLOOR\\]"
+            RESOURCE_LOCK starflight_runtime
+            TIMEOUT 90)
+    endforeach()
+
+    foreach(mode IN ITEMS native interpreter)
+        add_test(
+            NAME starflight_surface_return_${mode}
+            COMMAND StarflightRecomp
+                --no-launcher
+                --turbo
+                --fresh-evidence
+                --max-frames 6700
+                --input-script "${CMAKE_CURRENT_SOURCE_DIR}/tests/inputs/starflight_surface_return.input"
+                "${STARFLIGHT_GAME_DIR}/starflight.gen")
+        if(mode STREQUAL "interpreter")
+            set(force_interp 1)
+        else()
+            set(force_interp 0)
+        endif()
+        set_tests_properties(starflight_surface_return_${mode} PROPERTIES
+            ENVIRONMENT "SDL_VIDEODRIVER=dummy;SDL_AUDIODRIVER=dummy;GENESIS_FORCE_INTERP=${force_interp}"
+            FAIL_REGULAR_EXPRESSION "dispatch miss|interior-label miss|\\[FLOOR\\]"
+            RESOURCE_LOCK starflight_runtime
+            TIMEOUT 150)
     endforeach()
 endif()

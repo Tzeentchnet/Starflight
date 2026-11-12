@@ -11,11 +11,14 @@ The ROM remains user-supplied. Tier-3 interpreter fallback remains acceptable, b
 fallback and dynamic control flow on the accepted path must remain observable and
 covered by deterministic discovery inputs.
 
-## Current baseline (2026-10-15)
+## Current baseline (2026-10-16)
 
-The accepted milestone is complete. Active follow-on work is a bounded
-planetary-landing extension that must preserve the same no-local-state,
-native/interpreter, and observable-fallback requirements.
+The accepted milestone is complete. Qualified post-milestone extensions now
+cover deterministic landing, sustained surface travel, and a second
+directional surface action under the same no-local-state, native/interpreter,
+and observable-fallback requirements. The deterministic surface-return
+extension now disembarks and re-embarks the Terrain Vehicle, lifts off, and
+reaches stable orbit under the same requirements.
 
 ### Verified
 
@@ -26,9 +29,9 @@ native/interpreter, and observable-fallback requirements.
   - CRC32: `D550C928`
 - Native arm64 build works with Homebrew LLVM/lld.
 - Boot/title framebuffer smoke test passes.
-- A fresh remote recursive clone configures and builds after only the verified
-  user-supplied ROM is added, then passes all 12 Starflight tests and all 16
-  framework tests.
+- The accepted-milestone fresh-clone qualification configured and built after
+  only the verified user-supplied ROM was added, then passed all 12 Starflight
+  tests present at that revision and all 16 framework tests.
 - SRAM geometry is `$200000-$203FFF`, always visible beyond the 1 MiB ROM.
 - Framework SRAM mapping test passes.
 - Native and forced-interpreter launch regressions start from reset, construct the
@@ -45,12 +48,21 @@ native/interpreter, and observable-fallback requirements.
 - Native and forced-interpreter surface-exploration regressions add one
   symbolic active-crew count, preserve planetary mode, and verify that
   sustained surface travel consumes one fuel unit.
+- Native and forced-interpreter second-surface-action regressions reuse the
+  state-free landing constructor, hold Left for 60 frames, and verify the full
+  paired directional sprite tile-attribute words change from `$6254/$6264` to
+  `$7254/$7264` while planetary mode, active-crew count, and fuel remain stable.
+- Native and forced-interpreter surface-return regressions add only the
+  terrain-vehicle ownership bit at `$FF9835`, naturally traverse `DISEMBARK`
+  and `EMBARK`, hold A through lift-off, and reach stable ship mode 2 with fuel
+  `$00C6`, navigation object `$07BC`, and nearby-object scale `$18`.
 - The launch recipe requires only three WRAM values and no local save-state,
   CPU-register, machine, VDP, screenshot, or ROM-derived payload.
 - Launch evidence reports zero dispatch misses, unsafe floor exits, and
   interior-label misses.
 - Starport control-flow labels and the `$016BAE` discovery boundary are tracked.
-- A fresh Ghidra import reproduces all 42 tracked annotations.
+- The current annotation export and provenance track 49 labels: 28 code labels
+  and 21 WRAM labels.
 - The project and framework are published privately:
   - `https://github.com/Tzeentchnet/Starflight`
   - `https://github.com/Tzeentchnet/Starflight-segagenesisrecomp`
@@ -82,6 +94,10 @@ native/interpreter, and observable-fallback requirements.
   deterministic state construction without a serialized save.
 - A genuine Operations save, 16 KiB host flush, second-process reload, symbolic
   ship/crew verification, and post-reload launch are covered by CTest.
+- `$FF85BC/$FF85F4` are tracked neutrally as the paired surface directional
+  sprite tile-attribute words.
+- `$FF9835` is tracked as `TerrainVehicleStatusFlags`; bit 0 is the ownership
+  state set by outfitting and required by the landed-ship `DISEMBARK` action.
 
 ### Remaining risks
 
@@ -108,6 +124,9 @@ native/interpreter, and observable-fallback requirements.
   reachable targets are emitted. The finder still reports the four syntactic
   sites because it does not associate their preceding dataflow with
   `JMP (A0)`.
+- The qualified Left action proves a paired sprite tile-attribute flip-state
+  response, not a change in world coordinates, traversal distance, or a
+  surface-return path.
 - Local save states and Ghidra projects are intentionally ignored and cannot be
   handoff dependencies.
 
@@ -118,9 +137,10 @@ native/interpreter, and observable-fallback requirements.
    and deepen Ghidra annotations and discovery.
 3. **Complete for the private mirror:** extract and prepare generic framework
    changes for upstream review. Public upstream submission remains pending.
-4. **Complete for the accepted milestone and landing extension:** expand
-   gameplay qualification beyond orbit through basic ship control, navigation,
-   return to Starport, and a separate deterministic planetary landing.
+4. **Complete for the accepted milestone and current qualified extensions:**
+   expand gameplay qualification beyond orbit through basic ship control,
+   navigation, return to Starport, deterministic planetary landing, and two
+   bounded surface actions.
 5. **Complete:** perform clean-clone milestone qualification and packaging.
 
 Agents must not edit the same files concurrently. Assign one owner to framework
@@ -550,12 +570,30 @@ submission. The active reverse-engineering experiment is tracked in Workstream
   and both native and forced-interpreter launch regressions pass with the new
   annotations.
 
-### Current next experiment
+### Surface annotation follow-up
+
+- Static analysis identified `$FF85BC` and `$FF85F4` as paired directional
+  sprite tile-attribute words. `$00BD1A` combines heading-derived flip flags
+  from `$00BD0A` with base patterns `$0254/$0264`, and `$003218` emits the
+  resulting words at SAT+4.
+- The two WRAM locations are tracked with the neutral symbols
+  `SurfaceDirectionalSpriteTileAttribute0` and
+  `SurfaceDirectionalSpriteTileAttribute1`.
+- The current annotation export contains 49 labels: 28 code labels and 21 WRAM
+  labels. The corrected gameplay-floor provenance records 71 entries: 42
+  runtime or accepted-path boundaries, 14 table-derived handlers, and 15
+  wrappers, with 47 static duplicates removed.
+- The later surface-return extension added four validated dynamic callback
+  boundaries to `game/starflight_gameplay_floor.toml`. Regeneration emits all
+  82/82 configured entries with zero code-gate rejections and zero unsupported
+  code-generation diagnostics.
+
+### Workstream handoff
 
 **Complete:** Workstream 5 selected basic ship control, added matching native
-and forced-interpreter semantic regressions, and characterized the accepted
-checkpoint. Active investigation is now the Workstream 5 navigation or
-communications experiment.
+and forced-interpreter semantic regressions, then extended the qualified path
+through navigation, landing, two surface actions, and the deterministic return
+from planetary mode to orbit.
 
 ### Acceptance criteria
 
@@ -571,6 +609,42 @@ communications experiment.
 
 ### Progress record
 
+- `starflight_surface_second_action.input` starts from reset and reuses the
+  state-free landing constructor with `ActiveCrewCount` at `$FF97D3 = 1`.
+  After reaching game mode 4, it holds Left for 60 frames.
+- The regression asserts the complete paired directional sprite tile-attribute
+  words at `$FF85BC/$FF85F4`: `$6254/$6264` before input and `$7254/$7264`
+  afterward. Game mode remains 4, `ActiveCrewCount` remains 1, and fuel at
+  `$FF9572` remains `$00C8`.
+- The `$1000` delta is consistent with the static surface-render trace:
+  `$00BD1A` combines heading-derived flip flags from `$00BD0A` with patterns
+  `$0254/$0264`, then `$003218` emits both words at SAT+4. This checkpoint
+  qualifies a directional render-state response; it does not establish
+  surface-coordinate movement.
+- CMake registers native and forced-interpreter variants with a 3000-frame
+  limit, 90-second timeout, staged-resume pass expression, and shared
+  `starflight_runtime` resource lock.
+- The first six-test preservation run covering planetary landing, surface
+  exploration, and the second action in both execution modes passed in
+  `278.19` seconds. After replacing partial assertions with full-word
+  assertions, the second-action pair passed again in `94.04` seconds.
+- Final focused validation on 2026-10-16 passed all seven selected tests in
+  `278.16` seconds: resume policy in `0.00`, landing native/interpreter in
+  `45.03/45.02`, surface exploration in `47.02/47.03`, and the second action
+  in `47.03/47.04` seconds. The command was:
+  `ctest --test-dir build/macos-arm64 --output-on-failure -R
+  '^(starflight_resume_policy|starflight_(planetary_landing|surface_exploration|surface_second_action)_(native|interpreter))$'`.
+- The final 2819-frame forced-interpreter run refreshed the ignored local
+  evidence files under `build/macos-arm64/`; they contain zero dispatch misses,
+  interior-label misses, unsafe-floor exits, and Tier-3 floor entries.
+- `cmake --build build/macos-arm64 --target
+  genesisrecomp_generate_starflight` passes; the final check found the
+  82/82-generated target current (`ninja: no work to do`). The integrated
+  regeneration reported zero gate rejections and zero unsupported diagnostics.
+- `git diff --check` passes for the integrated worktree.
+- The current tracked annotation total is 49. Provenance records the
+  71-entry gameplay floor (`42` runtime/boundary, `14` table-derived,
+  `15` wrapper).
 - The original landing checkpoint was not a viable exploration state: with
   `$FF97D3 = 0`, the surface appeared at frame 2699 but entered the
   crew-killed path through `$03C66E` by frame 2819 while leaving game mode 4
@@ -588,16 +662,17 @@ communications experiment.
 - `starflight_surface_exploration_native` and
   `starflight_surface_exploration_interpreter` pass in `47.23` and `47.02`
   seconds.
-- Four post-landing Tier-3 entries were promoted. Regeneration emits all 78/78
-  configured entries with zero code-gate rejections and reports zero
-  unsupported code-generation diagnostics.
+- Four post-landing Tier-3 entries and four later surface-return callbacks were
+  promoted. Regeneration emits all 82/82 configured entries with zero
+  code-gate rejections and reports zero unsupported code-generation
+  diagnostics.
 - Fresh forced-interpreter evidence over 2819 frames reports zero dispatch
   misses, interior-label misses, unsafe-floor exits, and Tier-3 floor entries.
 - Post-change `starflight_planetary_landing_native` and
   `starflight_planetary_landing_interpreter` continue to pass in `45.01` and
   `45.03` seconds.
-- A fresh Ghidra 12.1.4 headless import reproduces and saves all 42 tracked
-  annotations, including `ActiveCrewCount`, without using the ignored local
+- A fresh Ghidra 12.1.4 headless import reproduced and saved the 42 annotations
+  tracked at that stage, including `ActiveCrewCount`, without using the ignored local
   project.
 - Project implementation commit:
   `56d58b3aadf4c4b94a2791148684ff1a231f8aee`
@@ -739,14 +814,36 @@ communications experiment.
   `6a4f35c5fc2b4cec2c0d89cad594f155d6c0492d`
   (`Add deterministic Starport return regression`).
 
-### Current next experiment
+### Qualified surface-return extension
 
-**Complete as a post-milestone extension:** the symbolic orbit constructor now
-reaches a viable planetary state and performs sustained surface travel in
-matching native and forced-interpreter regressions without local save states.
-The next smallest gameplay experiment is a second surface action or a
-deterministic return from the surface; the already-qualified return-to-Starport
-path remains the accepted first-milestone endpoint.
+The earlier directional probes started before the landed-ship initialization
+had installed its menu callback and did not model Terrain Vehicle ownership.
+Static disassembly and bounded runtime probes established the missing flow:
+
+1. bit 0 of `$FF9835` is the ownership state checked by `DISEMBARK`;
+2. after surface initialization, C opens the landed-ship menu and A selects its
+   initial `DISEMBARK` item;
+3. successful disembark changes menu state `$FF93AC` from 1 to 2 and places
+   the Terrain Vehicle at `$4A02/$3E02`, already inside the ship's proximity
+   bounds;
+4. C, four Down presses, and A select `EMBARK`, restoring menu state 1 and ship
+   coordinates `$47FE/$3BFE`;
+5. holding A for 600 frames lifts off, and a bounded stabilization wait reaches
+   ship mode 2 with `ORBIT ESTABLISHED`.
+
+`starflight_surface_return.input` performs that 5,139-frame path from reset.
+Both tests pass (`85.98` seconds native, `85.69` seconds forced interpreter)
+with the same final checkpoint: active crew 1, Terrain Vehicle status `$01`,
+fuel `$00C6`, navigation object `$07BC`, one nearby object, scale `$18`, menu
+state 0, and ship-menu renderer `$00C886`.
+
+The four dynamic callback roots `$0081E2`, `$008206`, `$00822C`, and `$008352`
+were validated against 68000 disassembly and promoted. Regeneration imports 49
+annotations, emits all 82 configured entries with zero code-gate rejections,
+and reports zero unsupported instructions. Fresh forced-interpreter evidence
+for the accepted path reports zero dispatch misses, interior-label misses,
+unsafe-floor exits, and Tier-3 entries. The prior seven-test resume, landing,
+and surface preservation set also passes 7/7.
 
 ### Steps
 

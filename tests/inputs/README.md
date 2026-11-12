@@ -39,6 +39,27 @@ Up for 60 frames, and checks that one fuel unit is consumed while planetary
 mode and the active-crew count remain unchanged. Native and forced-interpreter
 variants use the same state-free recipe.
 
+`starflight_surface_second_action.input` starts from reset and symbolically
+constructs the state-free, command-capable landing state with one active crew
+member. After landing, it verifies planetary mode, holds Left for 60 frames,
+and checks the semantic turning checkpoint: the paired directional sprite
+tile-attribute words at `$FF85BC` and `$FF85F4` change from `$6254`/`$6264` to
+`$7254`/`$7264`, toggling the heading-derived `$1000` flip flag, while planetary
+mode, the active-crew count, and the `$00C8` fuel word remain stable. This
+establishes a turn/flip-state change, not surface displacement. Native and
+forced-interpreter variants use the same script with no save-state, SRAM,
+screenshot, raw-memory payload, or other local-state dependency.
+
+`starflight_surface_return.input` adds the terrain-vehicle ownership bit at
+`$FF9835` to the same reset-backed constructor. It lands, waits for the
+landed-ship menu callback, selects `DISEMBARK`, selects `EMBARK` from the
+Terrain Vehicle options, and holds A through lift-off. It verifies the
+intermediate landed-ship and Terrain Vehicle menu states and the final stable
+orbit checkpoint: game mode 2, active crew 1, fuel `$00C6`, navigation object
+`$07BC`, one nearby object, and nearby-object scale `$18`. Native and
+forced-interpreter CTests use the same script without local save state, SRAM,
+screenshot, or raw-memory payload dependencies.
+
 `starflight_sram_write.input` and `starflight_sram_read.input` are paired by the
 `starflight_sram_roundtrip` CTest. The first process writes byte and word
 sentinels at both ends of the 16 KiB SRAM window and exits through normal

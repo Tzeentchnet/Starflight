@@ -3,11 +3,11 @@
     "source": "manual ROM analysis and runtime Tier-3 coverage",
     "rom_sha256": "31b9d25fcde71c9707a408d58ca229a3b87c1e4fd1300cc407f2ac1d13f15250",
     "product": "GM T-50216 -00",
-    "code_labels": 24,
-    "wram_labels": 18,
+    "code_labels": 28,
+    "wram_labels": 21,
     "discovery_floor": {
-      "gameplay_entries": 56,
-      "runtime_or_boundary_entries": 27,
+      "gameplay_entries": 71,
+      "runtime_or_boundary_entries": 42,
       "table_derived_entries": 14,
       "wrapper_entries": 15,
       "removed_static_duplicates": 47
@@ -18,13 +18,16 @@
       "Starport and launch labels were validated from the live launch save-state stack and native/interpreter replay through ORBIT ESTABLISHED.",
       "Save routines $037AA0 and $037C94 were validated by an SRAM write trace from Operations -> SAVE AS GAME 1; the copy routine wrote 4096 odd bytes across $200001-$201FFF.",
       "TitleHelper labels are callable boundaries validated from runtime floor evidence and 68000 disassembly.",
-      "The gameplay discovery floor was audited against a static-only regeneration: 47 independently emitted duplicates were removed and 56 runtime, boundary, table-derived, or wrapper entries remain.",
-      "A fresh Ghidra 12.1.4 headless import reproduced all 31 tracked annotations without the ignored local project: 24 code labels and seven validated WRAM state labels.",
+      "The gameplay discovery floor was audited against a static-only regeneration: 47 independently emitted duplicates were removed; accepted landing and surface-return extensions bring the remaining runtime, boundary, table-derived, or wrapper entries to 71.",
+      "The tracked annotation export contains 49 entries: 28 code labels and 21 validated WRAM state labels.",
       "Forced-interpreter executed-PC evidence corrected the ship transition trace: the accepted launch calls $01B336 and enters the stable $00B3AE frame loop; $01B2F8 is the separate state-preserving mode-2 entry.",
       "Static ship-control analysis added five neutral WRAM labels: the three-byte navigation location tuple initialized by $009016, the fuel word initialized to 200 by $00AB9E, and the nearby-object count rebuilt by $00BE10.",
       "Static navigation analysis identified $FFB84C as the 16-bit navigation object identifier set to $07CB by the Starport path, and $FFB855-$FFB85B as a seven-byte ship-system condition array initialized to 100 by $00AB8A.",
       "Native and forced-interpreter thrust probes identified $FF938E as the projected nearby-object scale: sustained Up changes it from $08 to $10 with the symbolic fixture while preserving ship mode and fuel.",
-      "Surface exploration reduction identified $FF97D3 as the active crew count: zero enters the crew-killed path after landing, while one preserves planetary mode and permits sustained Up to consume one fuel unit in matching native and forced-interpreter runs."
+      "Surface exploration reduction identified $FF97D3 as the active crew count: zero enters the crew-killed path after landing, while one preserves planetary mode and permits sustained Up to consume one fuel unit in matching native and forced-interpreter runs.",
+      "Static surface-render analysis identified $FF85BC and $FF85F4 as paired VDP sprite tile-attribute words: $00BD1A applies one direction-derived flip byte to base pattern indices $0254 and $0264, and the render paths pass both words through sprite-table builder $003218.",
+      "Surface-return analysis identified bit 0 of $FF9835 as the terrain-vehicle ownership state: $018594 sets it while outfitting a missing vehicle, and $00822C rejects DISEMBARK with the lost-vehicle message when it is clear.",
+      "Runtime evidence and 68000 disassembly validated the landed-ship callbacks at $0081E2/$00822C and terrain-vehicle callbacks at $008206/$008352; promoting those four boundaries removes all Tier-3 entries from the accepted return path."
     ]
   }
 }
