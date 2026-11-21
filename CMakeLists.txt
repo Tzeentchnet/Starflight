@@ -13,10 +13,21 @@ set(RUNNER_ROOT "${RECOMP_ROOT}/runner")
 set(STARFLIGHT_GAME_DIR "${CMAKE_CURRENT_SOURCE_DIR}/game")
 
 find_package(SDL2 REQUIRED CONFIG)
+set(STARFLIGHT_MACOS_RUNTIME_LIBRARIES "")
+if(APPLE)
+    find_library(STARFLIGHT_SDL3_RUNTIME
+        NAMES SDL3
+        HINTS /opt/homebrew/opt/sdl3/lib)
+    if(STARFLIGHT_SDL3_RUNTIME)
+        list(APPEND STARFLIGHT_MACOS_RUNTIME_LIBRARIES
+            "${STARFLIGHT_SDL3_RUNTIME}")
+    endif()
+endif()
 
 option(STARFLIGHT_ENABLE_TRACE "Enable runtime evidence and debug server" ON)
 
 include("${RECOMP_ROOT}/cmake/GenesisRecompGenerated.cmake")
+include("${RECOMP_ROOT}/cmake/GenesisRecompMacOS.cmake")
 genesisrecomp_add_generated_sources(
     STARFLIGHT_GENERATED_SOURCES
     starflight
@@ -55,10 +66,17 @@ target_compile_definitions(StarflightRecomp PRIVATE
 
 target_link_libraries(StarflightRecomp PRIVATE SDL2::SDL2main SDL2::SDL2)
 genesisrecomp_runner_target(StarflightRecomp)
+genesisrecomp_macos_bundle(StarflightRecomp
+    BUNDLE_IDENTIFIER net.tzeentchnet.starflight
+    BUNDLE_NAME Starflight
+    VERSION "${PROJECT_VERSION}"
+    RUNTIME_LIBRARIES ${STARFLIGHT_MACOS_RUNTIME_LIBRARIES})
 
 if(BUILD_TESTING)
+    set(STARFLIGHT_TEST_USER_DIR "${CMAKE_CURRENT_BINARY_DIR}/test-user")
+    file(MAKE_DIRECTORY "${STARFLIGHT_TEST_USER_DIR}")
     set(STARFLIGHT_TEST_ENVIRONMENT
-        "SDL_VIDEODRIVER=dummy;SDL_AUDIODRIVER=dummy;GENESIS_REPLAY_RECORD=0")
+        "SDL_VIDEODRIVER=dummy;SDL_AUDIODRIVER=dummy;GENESIS_REPLAY_RECORD=0;GENESIS_USER_DIR=${STARFLIGHT_TEST_USER_DIR}")
 
     add_executable(starflight_resume_policy_test
         tests/starflight_resume_policy_test.c
@@ -89,7 +107,7 @@ if(BUILD_TESTING)
             "-DSTARFLIGHT_GAME=${STARFLIGHT_GAME_DIR}/starflight.gen"
             "-DSRAM_WRITE_SCRIPT=${CMAKE_CURRENT_SOURCE_DIR}/tests/inputs/starflight_sram_write.input"
             "-DSRAM_READ_SCRIPT=${CMAKE_CURRENT_SOURCE_DIR}/tests/inputs/starflight_sram_read.input"
-            "-DSRAM_PATH=$<TARGET_FILE_DIR:StarflightRecomp>/starflight.srm"
+            "-DSRAM_PATH=${STARFLIGHT_TEST_USER_DIR}/starflight.srm"
             -P "${CMAKE_CURRENT_SOURCE_DIR}/tests/run_sram_roundtrip.cmake")
     set_tests_properties(starflight_sram_roundtrip PROPERTIES
         ENVIRONMENT "${STARFLIGHT_TEST_ENVIRONMENT}"
@@ -103,7 +121,7 @@ if(BUILD_TESTING)
             "-DSTARFLIGHT_GAME=${STARFLIGHT_GAME_DIR}/starflight.gen"
             "-DSRAM_SAVE_SCRIPT=${CMAKE_CURRENT_SOURCE_DIR}/tests/inputs/starflight_sram_game_save.input"
             "-DSRAM_LOAD_SCRIPT=${CMAKE_CURRENT_SOURCE_DIR}/tests/inputs/starflight_sram_game_load.input"
-            "-DSRAM_PATH=$<TARGET_FILE_DIR:StarflightRecomp>/starflight.srm"
+            "-DSRAM_PATH=${STARFLIGHT_TEST_USER_DIR}/starflight.srm"
             -P "${CMAKE_CURRENT_SOURCE_DIR}/tests/run_sram_game_save.cmake")
     set_tests_properties(starflight_sram_game_save PROPERTIES
         ENVIRONMENT "${STARFLIGHT_TEST_ENVIRONMENT}"

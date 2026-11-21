@@ -66,6 +66,16 @@ scripts/run-macos.sh
 
 You may pass a different ROM path to the configure and run scripts. Configure
 validates its SHA-256 before exposing it to the generated-code build.
+The build produces `build/macos-arm64/Starflight.app`; the run script starts
+the executable inside that bundle with the validated ROM. You can also open
+the launcher directly:
+
+```sh
+open build/macos-arm64/Starflight.app
+```
+
+The app embeds its non-system SDL libraries and is ad-hoc signed for local use.
+It is not notarized for distribution.
 
 Default player-one controls are:
 
@@ -77,15 +87,17 @@ Default player-one controls are:
 | C | C |
 | Start | Return |
 
-The runtime derives the battery-backed save name from the configured game
-container and writes it beside the executable. The standard build therefore
-uses `build/macos-arm64/starflight.srm`. Generated C and all build products
+The bundled runtime derives the battery-backed save name from the configured
+game container and writes it to
+`~/Library/Application Support/GenesisRecomp/Starflight/starflight.srm`.
+Automated tests override that location with `GENESIS_USER_DIR` and keep their
+data under `build/macos-arm64/test-user/`. Generated C and all build products
 remain under `build/`.
 
 Native save-state restoration is mode-aware for the validated starport path.
 Corridor states resume at the per-frame corridor loop, while an in-progress
 station exit resumes at its launch loop and continues into the ship playfield.
-The framework submodule is based on upstream commit `489131d` and carries
+The framework submodule is based on upstream commit `d4c13cf` and carries
 Starflight compatibility patches that preserve the restored A7, reject unsafe
 game modes, and run the setup/dispatcher continuation in both native and
 forced-interpreter execution.
@@ -198,9 +210,10 @@ sprite tile-attribute flip state without consuming fuel. The latter assertion
 does not establish world-coordinate movement. A further qualified extension
 disembarks and re-embarks the Terrain Vehicle, then lifts off from planetary
 mode to stable orbit. Broader game progression remains exploratory. The first milestone allows
-observable Tier-3 interpreter fallback outside validated paths and does not
-include an app bundle, Intel support, widescreen, netplay, or a rebuildable
-assembly source.
+observable Tier-3 interpreter fallback outside validated paths. The local
+Apple Silicon build includes an ad-hoc-signed app bundle, but not a notarized
+distribution, Intel support, widescreen, netplay, or a rebuildable assembly
+source.
 
 The framework is licensed under
 [PolyForm Noncommercial 1.0.0](segagenesisrecomp/LICENSE.md). Its

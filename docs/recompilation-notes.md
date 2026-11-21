@@ -31,6 +31,20 @@ scripts/run-macos.sh
 
 Each script also accepts the ROM path where applicable. Configuration fails
 before generation if the SHA-256 does not match the supported USA/Europe ROM.
+The build output is `build/macos-arm64/Starflight.app`. The run script starts
+its bundled executable with the validated ROM. Open the launcher directly with:
+
+```sh
+open build/macos-arm64/Starflight.app
+```
+
+The bundle embeds its non-system SDL libraries and is ad-hoc signed, but it is
+not notarized.
+
+Writable data defaults to
+`~/Library/Application Support/GenesisRecomp/Starflight/`. Set
+`GENESIS_USER_DIR` to an absolute path to override it; CTest uses
+`build/macos-arm64/test-user/`.
 
 ## Generation pipeline
 

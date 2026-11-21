@@ -156,11 +156,15 @@ manual probes.
 ## SRAM image (`.srm`)
 
 The host persists the inclusive `$200000-$203FFF` SRAM window as a raw
-16,384-byte file. The standard build writes:
+16,384-byte file. The bundled macOS build writes:
 
 ```text
-build/macos-arm64/starflight.srm
+~/Library/Application Support/GenesisRecomp/Starflight/starflight.srm
 ```
+
+`GENESIS_USER_DIR` accepts an absolute directory override. The automated tests
+use `build/macos-arm64/test-user/` so they never read or modify the player's
+save.
 
 The file is loaded before guest startup and flushed during normal runtime
 shutdown. The host round-trip test checks both ends of the full 16 KiB image.
@@ -172,8 +176,8 @@ is intentionally treated as opaque unless separately characterized.
 
 ## Runtime evidence TOML
 
-When tracing is enabled, the runner writes build-stamped TOML files beside the
-executable:
+When tracing is enabled, the bundled runner writes build-stamped TOML files in
+the same Application Support directory as its other writable data:
 
 | File | Meaning | May be loaded as discovery input? |
 | --- | --- | --- |
