@@ -1,0 +1,27 @@
+{
+  "$schema": "https://recomp.fyi/schema/v1.json",
+  "game": "Starflight",
+  "wikidata": "Q1462499",
+  "system": "Genesis",
+  "type": "recomp",
+  "original": {
+    "region": "USA, Europe",
+    "serial": "GM T-50216 -00",
+    "sha1": "24252ca934be3f005436cdb85671413a9e6b0489"
+  },
+  "project": "Starflight Genesis Recomp",
+  "status": "in-progress",
+  "targets": [
+    "macOS"
+  ],
+  "toolchain": "Segagenesisrecomp",
+  "approach": "Static Motorola 68000 recompilation with a clean-room Genesis runtime",
+  "started": "2026-10-14",
+  "maintainers": [
+    {
+      "name": "Tzeentchnet",
+      "link": "https://github.com/Tzeentchnet"
+    }
+  ],
+  "notes": "Deterministic native and interpreter tests cover boot, persistence, starport, ship navigation, planetary landing, surface actions, and return to orbit. Full-game progression remains in progress."
+}
