@@ -57,6 +57,9 @@ target_link_libraries(StarflightRecomp PRIVATE SDL2::SDL2main SDL2::SDL2)
 genesisrecomp_runner_target(StarflightRecomp)
 
 if(BUILD_TESTING)
+    set(STARFLIGHT_TEST_ENVIRONMENT
+        "SDL_VIDEODRIVER=dummy;SDL_AUDIODRIVER=dummy;GENESIS_REPLAY_RECORD=0")
+
     add_executable(starflight_resume_policy_test
         tests/starflight_resume_policy_test.c
         "${STARFLIGHT_GAME_DIR}/starflight_spec.c")
@@ -75,7 +78,7 @@ if(BUILD_TESTING)
             --input-script "${CMAKE_CURRENT_SOURCE_DIR}/tests/inputs/starflight_boot_smoke.input"
             "${STARFLIGHT_GAME_DIR}/starflight.gen")
     set_tests_properties(starflight_boot_smoke PROPERTIES
-        ENVIRONMENT "SDL_VIDEODRIVER=dummy;SDL_AUDIODRIVER=dummy"
+        ENVIRONMENT "${STARFLIGHT_TEST_ENVIRONMENT}"
         RESOURCE_LOCK starflight_runtime
         TIMEOUT 60)
 
@@ -89,6 +92,7 @@ if(BUILD_TESTING)
             "-DSRAM_PATH=$<TARGET_FILE_DIR:StarflightRecomp>/starflight.srm"
             -P "${CMAKE_CURRENT_SOURCE_DIR}/tests/run_sram_roundtrip.cmake")
     set_tests_properties(starflight_sram_roundtrip PROPERTIES
+        ENVIRONMENT "${STARFLIGHT_TEST_ENVIRONMENT}"
         RESOURCE_LOCK starflight_runtime
         TIMEOUT 60)
 
@@ -102,6 +106,7 @@ if(BUILD_TESTING)
             "-DSRAM_PATH=$<TARGET_FILE_DIR:StarflightRecomp>/starflight.srm"
             -P "${CMAKE_CURRENT_SOURCE_DIR}/tests/run_sram_game_save.cmake")
     set_tests_properties(starflight_sram_game_save PROPERTIES
+        ENVIRONMENT "${STARFLIGHT_TEST_ENVIRONMENT}"
         RESOURCE_LOCK starflight_runtime
         TIMEOUT 90)
 
@@ -121,7 +126,7 @@ if(BUILD_TESTING)
             set(force_interp 0)
         endif()
         set_tests_properties(starflight_launch_${mode} PROPERTIES
-            ENVIRONMENT "SDL_VIDEODRIVER=dummy;SDL_AUDIODRIVER=dummy;GENESIS_FORCE_INTERP=${force_interp}"
+            ENVIRONMENT "${STARFLIGHT_TEST_ENVIRONMENT};GENESIS_FORCE_INTERP=${force_interp}"
             FAIL_REGULAR_EXPRESSION "dispatch miss|interior-label miss|\\[FLOOR\\]"
             RESOURCE_LOCK starflight_runtime
             TIMEOUT 60)
@@ -143,7 +148,7 @@ if(BUILD_TESTING)
             set(force_interp 0)
         endif()
         set_tests_properties(starflight_ship_control_${mode} PROPERTIES
-            ENVIRONMENT "SDL_VIDEODRIVER=dummy;SDL_AUDIODRIVER=dummy;GENESIS_FORCE_INTERP=${force_interp}"
+            ENVIRONMENT "${STARFLIGHT_TEST_ENVIRONMENT};GENESIS_FORCE_INTERP=${force_interp}"
             FAIL_REGULAR_EXPRESSION "dispatch miss|interior-label miss|\\[FLOOR\\]"
             RESOURCE_LOCK starflight_runtime
             TIMEOUT 60)
@@ -165,7 +170,7 @@ if(BUILD_TESTING)
             set(force_interp 0)
         endif()
         set_tests_properties(starflight_navigation_${mode} PROPERTIES
-            ENVIRONMENT "SDL_VIDEODRIVER=dummy;SDL_AUDIODRIVER=dummy;GENESIS_FORCE_INTERP=${force_interp}"
+            ENVIRONMENT "${STARFLIGHT_TEST_ENVIRONMENT};GENESIS_FORCE_INTERP=${force_interp}"
             FAIL_REGULAR_EXPRESSION "dispatch miss|interior-label miss|\\[FLOOR\\]"
             RESOURCE_LOCK starflight_runtime
             TIMEOUT 60)
@@ -187,7 +192,7 @@ if(BUILD_TESTING)
             set(force_interp 0)
         endif()
         set_tests_properties(starflight_return_starport_${mode} PROPERTIES
-            ENVIRONMENT "SDL_VIDEODRIVER=dummy;SDL_AUDIODRIVER=dummy;GENESIS_FORCE_INTERP=${force_interp}"
+            ENVIRONMENT "${STARFLIGHT_TEST_ENVIRONMENT};GENESIS_FORCE_INTERP=${force_interp}"
             FAIL_REGULAR_EXPRESSION "dispatch miss|interior-label miss|\\[FLOOR\\]"
             RESOURCE_LOCK starflight_runtime
             TIMEOUT 90)
@@ -209,7 +214,7 @@ if(BUILD_TESTING)
             set(force_interp 0)
         endif()
         set_tests_properties(starflight_planetary_landing_${mode} PROPERTIES
-            ENVIRONMENT "SDL_VIDEODRIVER=dummy;SDL_AUDIODRIVER=dummy;GENESIS_FORCE_INTERP=${force_interp}"
+            ENVIRONMENT "${STARFLIGHT_TEST_ENVIRONMENT};GENESIS_FORCE_INTERP=${force_interp}"
             FAIL_REGULAR_EXPRESSION "dispatch miss|interior-label miss|\\[FLOOR\\]"
             RESOURCE_LOCK starflight_runtime
             TIMEOUT 90)
@@ -231,7 +236,7 @@ if(BUILD_TESTING)
             set(force_interp 0)
         endif()
         set_tests_properties(starflight_surface_exploration_${mode} PROPERTIES
-            ENVIRONMENT "SDL_VIDEODRIVER=dummy;SDL_AUDIODRIVER=dummy;GENESIS_FORCE_INTERP=${force_interp}"
+            ENVIRONMENT "${STARFLIGHT_TEST_ENVIRONMENT};GENESIS_FORCE_INTERP=${force_interp}"
             FAIL_REGULAR_EXPRESSION "dispatch miss|interior-label miss|\\[FLOOR\\]"
             RESOURCE_LOCK starflight_runtime
             TIMEOUT 90)
@@ -253,7 +258,7 @@ if(BUILD_TESTING)
             set(force_interp 0)
         endif()
         set_tests_properties(starflight_surface_second_action_${mode} PROPERTIES
-            ENVIRONMENT "SDL_VIDEODRIVER=dummy;SDL_AUDIODRIVER=dummy;GENESIS_FORCE_INTERP=${force_interp}"
+            ENVIRONMENT "${STARFLIGHT_TEST_ENVIRONMENT};GENESIS_FORCE_INTERP=${force_interp}"
             FAIL_REGULAR_EXPRESSION "dispatch miss|interior-label miss|\\[FLOOR\\]"
             RESOURCE_LOCK starflight_runtime
             TIMEOUT 90)
@@ -275,7 +280,7 @@ if(BUILD_TESTING)
             set(force_interp 0)
         endif()
         set_tests_properties(starflight_surface_return_${mode} PROPERTIES
-            ENVIRONMENT "SDL_VIDEODRIVER=dummy;SDL_AUDIODRIVER=dummy;GENESIS_FORCE_INTERP=${force_interp}"
+            ENVIRONMENT "${STARFLIGHT_TEST_ENVIRONMENT};GENESIS_FORCE_INTERP=${force_interp}"
             FAIL_REGULAR_EXPRESSION "dispatch miss|interior-label miss|\\[FLOOR\\]"
             RESOURCE_LOCK starflight_runtime
             TIMEOUT 150)
