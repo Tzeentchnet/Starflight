@@ -24,7 +24,7 @@ Current project changes:
 - `README.md`
 - `game/annotations.csv`
 - `ghidra/annotations/provenance.json`
-- `plan.md`
+- `docs/plan.md`
 - `tests/inputs/README.md`
 - `tests/inputs/starflight_surface_second_action.input` (new)
 - `tests/inputs/starflight_surface_return.input` (new)

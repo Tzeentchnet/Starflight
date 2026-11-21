@@ -17,6 +17,13 @@ ship playfield with `ORBIT ESTABLISHED`, return to Starport, perform one
 bounded planetary landing and two qualified surface actions, then re-embark
 the Terrain Vehicle and lift off to a stable orbit.
 
+## Documentation
+
+- [Game structure](docs/game-structure.md)
+- [Data formats](docs/data-formats.md)
+- [Recompilation notes](docs/recompilation-notes.md)
+- [Execution plan and workstream history](docs/plan.md)
+
 ## Supported ROM
 
 You must supply your own legally obtained ROM. ROM data, generated translations,

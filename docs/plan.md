@@ -1,5 +1,7 @@
 # Starflight Genesis Recomp: Execution Plan
 
+Paths in this plan are relative to the repository root.
+
 ## Goal
 
 Turn the current Apple Silicon proof of concept into a reproducible milestone that
